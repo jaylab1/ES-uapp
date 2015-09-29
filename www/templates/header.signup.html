@@ -1,0 +1,46 @@
+<ion-view>
+    <ion-content class="bg-content signup text-center">
+        <div class="legend">
+            <h4>{{'REGISTRATION' | translate}}</h4>
+        </div>
+        <div class="list a-input">
+            <label class="item item-input" id="signup-firstName">
+                <input type="text" placeholder="{{'FIRST_NAME' | translate}}" ng-model="signup.firstName">
+                <i class="icon ion-star placeholder-icon yellow"></i>
+            </label>
+            <label class="item item-input" id="signup-lastName">
+                <input type="text" placeholder="{{'LAST_NAME' | translate}}" ng-model="signup.lastName">
+                <i class="icon ion-star placeholder-icon yellow"></i>
+            </label>
+            <label class="item item-input" id="signup-email">
+                <input type="email" placeholder="{{'EMAIL' | translate}}" ng-model="signup.email">
+                <i class="icon ion-star placeholder-icon yellow"></i>
+            </label>
+            <div class="select" ng-click="onCountryTapped()" id="signup-country">
+                {{signup.country || 'COUNTRY'}}
+                <img class="icon" ng-src="img/icons/select-down.png">
+            </div>
+            <div class="row no-padding">
+                <label class="item col col-20 item-input" id="signup-mobilecode">
+                    <input type="tel" placeholder="+91" ng-model="signup.mobile.code" class="text-center">
+                </label>
+                <label class="item col col-offset-10 item-input" id="signup-mobilenumber">
+                    <input type="tel" placeholder="{{'PHONE_NUMBER' | translate}}" ng-model="signup.mobile.number">
+                    <i class="icon ion-star placeholder-icon yellow ph-fix"></i>
+                </label>
+            </div>
+            <label class="item item-input" id="signup-password">
+                <input type="password" placeholder="{{'PASSWORD' | translate}}" ng-model="signup.password">
+                <i class="icon ion-star placeholder-icon yellow"></i>
+            </label>
+            <div class="select" ng-click="onGenderTapped()" id="signup-gender">
+                {{signup.gender.text || ('GENDER' | translate)}}
+                <img class="icon" ng-src="img/icons/select-down.png">
+            </div>
+            <button class="button button-block button-energized bg-yellow b black" type="submit" ng-click="onNextTapped(signup)">
+                {{'NEXT' | translate}}
+            </button>
+            <p>By signning up you agree to our <span class="yellow" ng-click="onTermsTapped()"> terms of use </span> and the  <span class="yellow" ng-click="onPrivacyTapped()"> privay policy </span></p>
+        </div>
+    </ion-content>
+</ion-view>

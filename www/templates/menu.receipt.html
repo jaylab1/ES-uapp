@@ -1,0 +1,25 @@
+<ion-view id="receipt">
+    <ion-content class="bg-content text-center">
+        <h5>{{creditAction}}</h5>
+        <div class="container">
+            <div class="receipt">
+                <h3 class="yellow b">{{date.day}}<sup>th</sup> {{date.month + date.year}}</h3>
+                <span class="cost">${{request.totalCost}}</span>
+            </div>
+            <div class="rating-ctr">
+                <h3 class="title">RATE YOUR RIDE</h3>
+                <div class="rating">
+                    <rating ng-model="receipt.rating" max="5" class="yellow"></rating>
+                </div>
+                <div class="list">
+                    <label class="item item-input">
+                        <textarea placeholder="LEAVE A COMMENT" rows="4" ng-model="receipt.comment"></textarea>
+                    </label>
+                    <button class="button button-block button-energized bg-yellow black b" ng-click="onSubmitTapped(receipt)">
+                        SUBMIT
+                    </button>
+                </div>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

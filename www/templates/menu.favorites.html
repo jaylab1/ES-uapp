@@ -1,0 +1,26 @@
+<ion-view id="favorites">
+    <ion-content class="bg-yellow bg-marker">
+        <h4 class="text-center title b">ADD YOUR FAVORITE LOCATION</h4>
+        <div class="list locations">
+            <div class="item item-icon-left item-icon-right b" ng-repeat="favorite in favorites"    ng-click="onFavoriteTapped(favorite, $index)" ng-switch on="$index">
+                <img class="icon absolute v-mid" ng-src="img/icons/favorite-home-white.png" ng-switch-when="0" />
+                <img class="icon absolute v-mid" ng-src="img/icons/favorite-office-white.png" ng-switch-when="1" />
+                <img class="icon absolute v-mid" ng-src="img/icons/favorite-other-white.png" ng-switch-when="2" />
+                <img class="icon absolute v-mid" ng-src="img/icons/favorite-other-white.png" ng-switch-when="3" />
+                <span ng-switch-when="0">HOME</span>
+                <span ng-switch-when="1">OFFICE</span>
+                <span ng-switch-when="2">OTHER</span>
+                <span ng-switch-when="3">OTHER</span>
+                <sub>(TAP TO ADD ADDRESS)</sub>
+                <img class="icon absolute v-mid edit" ng-src="img/icons/favorite-edit.png" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col col-50 col-offset-25">
+                <button class="button button-block button-energized yellow bg-brown b">
+                    SUBMIT
+                </button>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

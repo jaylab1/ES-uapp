@@ -1,0 +1,82 @@
+<ion-view id="payment">
+    <ion-content class="bg-content padding">
+        <div class="list a-input creditcard">
+            <h3 class="text-center yellow">YOUR CREDIT CARD</h3>
+            <div class="item item-icon-left no-bg b border-yellow" ng-repeat="credit in creditCards">
+                <i class="icon ion-card"></i> PERSONAL ****{{credit.last4}}
+            </div>
+            <div class="item item-icon-left item-text-wrap no-bg yellow b border-yellow" ng-click="isCreditFormShown = true" ng-show="!isCreditFormShown">
+                <i class="icon ion-ios-plus-outline"></i>
+                {{creditCards.length > 0 ? 'ADD A BACKUP CREDIT CARD' : 'NO CARD AVAILABLE! ENTER YOUR CARD'}}
+            </div>
+            <form class="paymentForm" name="paymentForm" ng-show="isCreditFormShown">
+                <label class="item item-input" id="payment-cardname">
+                    <input type="text" placeholder="CARD NAME" ng-model="card.name">
+                </label>
+                <label class="item item-input" id="payment-cardnumber">
+                    <input type="text" placeholder="CARD NUMBER" cc-number ng-model="card.number">
+                </label>
+                <div class="row no-padding" cc-exp>
+                    <div class="col no-left-padding">
+                        <label class="item item-input" id="payment-exp_month">
+                            <input type="text" placeholder="EXPIRY MONTH" cc-exp-month ng-model="card.exp_month">
+                        </label>
+                    </div>
+                    <div class="col no-right-padding">
+                        <label class="item item-input" id="payment-exp_year">
+                            <input type="text" placeholder="EXPIRY YEAR" cc-exp-year ng-model="card.exp_year">
+                        </label>
+                    </div>
+                </div>
+                <label class="item item-input" id="payment-cardcvc">
+                    <input type="text" placeholder="CVC NUMBER" cc-cvc ng-model="card.cvc">
+                </label>
+                <div class="padding">
+                    <button class="button button-block button-energized bg-yellow b black" ng-click="onEditSaveTapped(card)">
+                        EDIT/SAVE
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="list a-input prepaidcard">
+            <h3 class="text-center yellow">PREPAID CARD</h3>
+            <div class="item item-icon-left no-bg yellow b border-yellow" ng-click="isPrepaidFormShown = true" ng-show="!isPrepaidFormShown">
+                <i class="icon ion-ios-plus-outline"></i> ENTER YOUR CODE
+            </div>
+            <form ng-show="isPrepaidFormShown">
+                <label class="item item-input">
+                    <input type="text" placeholder="ENTER YOUR CODE" ng-model="prepaid">
+                </label>
+                <div class="padding">
+                    <button class="button button-block button-energized bg-yellow b black" ng-click="onPrepaidSubmitTapped(prepaid)">
+                        SUBMIT
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="list a-input promotion">
+            <h3 class="text-center yellow">PROMOTION</h3>
+            <div class="item item-icon-left no-bg yellow b border-yellow" ng-click="isPromotionFormShown = true" ng-show="!isPromotionFormShown">
+                <i class="icon ion-ios-plus-outline"></i> ENTER YOUR CODE
+            </div>
+            <form ng-show="isPromotionFormShown">
+                <label class="item item-input">
+                    <input type="text" placeholder="ENTER YOUR CODE" ng-model="promotion">
+                </label>
+                <div class="padding">
+                    <button class="button button-block button-energized bg-yellow b black" ng-click="onPromotionSubmitTapped(promotion)">
+                        SUBMIT
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="list a-input barcode">
+            <h3 class="text-center yellow">SCAN THE BARCODE</h3>
+            <div class="padding">
+                <button class="button button-block button-energized bg-yellow b black" ng-click="onScanBarcodeTapped()">
+                    CLICK HERE
+                </button>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

@@ -1,0 +1,21 @@
+<ion-view>
+    <ion-content class="bg-content padding login text-center">
+        <div class="width-full text-center legend">
+            <h4>{{'LOGIN' | translate}}</h4>
+        </div>
+        <div class="list a-input no-dashing">
+            <label class="item item-input" id="login-email">
+                <input type="email" placeholder="{{'EMAIL' | translate}}" ng-model="login.email">
+            </label>
+            <label class="item item-input" id="login-password">
+                <input type="password" placeholder="{{'PASSWORD' | translate}}" ng-model="login.password">
+            </label>
+            <button class="button button-block button-energized bg-yellow b black" type="submit" ng-click="onLoginTapped(login)">
+                {{'LOGIN' | translate}}
+            </button>
+            <button class="button button-clear button-energized yellow" ui-sref="header.forget"> 
+                FORGOT YOUR PASSWORD
+            </button>
+        </div>
+    </ion-content>
+</ion-view>

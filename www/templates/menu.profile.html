@@ -1,0 +1,47 @@
+<ion-view id="profile">
+    <ion-content class="bg-content text-center profile">
+        <div class="picture">
+            <div class="button-circle camera" ng-click="onCameraTapped()">
+                <span>TAKE PICTURE</span>
+            </div>
+            <div class="pp">
+                <img ng-src="{{user.profilePicture}}">
+            </div>
+            <div class="button-circle gallery" ng-click="onGalleryTapped()">
+                <span>CHOOSE FROM GALLERY</span>
+            </div>
+        </div>
+        <div class="list b-input">
+            <div class="row no-padding name">
+                <div class="col col-offset-20 col-33 no-padding">
+                    <label class="item item-input" id="profile-firstName">
+                        <input class="first" type="text" placeholder="USER" ng-model="user.firstName">
+                    </label>
+                </div>
+                <div class="col col-33 no-padding">
+                    <label class="item item-input last" id="profile-lastName">
+                        <input type="text" placeholder="NAME" ng-model="user.lastName">
+                    </label>
+                </div>
+            </div>
+            <label class="item item-input no-padding" id="profile-gender">
+                <input type="text" placeholder="GENDER" class="text-center gender" ng-model="user.gender">
+            </label>
+            <label class="item item-input no-padding" id="profile-email">
+                <input type="email" placeholder="EMAIL" class="text-center b" ng-model="user.email">
+            </label>
+            <label class="item item-input no-padding" id="profile-mobile">
+                <input type="text" placeholder="MOBILE" class="text-center b" ng-model="user.mobile">
+            </label>
+            <h5 class="b" ng-click="onEmergencyNumberTapped()">EMERGENCY NUMBER</h5>
+        </div>
+        <div class="padding">
+        	<button class="button button-block button-energized bg-yellow b black" ng-click="onSaveTapped(user)">
+                SAVE THE CHANGES
+            </button>
+            <button class="button button-block button-dark bg-black b" ng-click="onLogoutTapped()">
+                LOGOUT
+            </button>
+        </div>
+    </ion-content>
+</ion-view>

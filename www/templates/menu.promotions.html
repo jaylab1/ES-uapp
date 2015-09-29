@@ -1,0 +1,14 @@
+<ion-view id="promotions">
+    <ion-content class="bg-content text-center">
+        <div class="row promotion" ng-repeat="promotion in promotions">
+            <div class="col">
+                <h3 class="yellow b">{{promotion.name}}</h3>
+                <img ng-if="promotion.image.length > 0" ng-src="{{promotion.image}}" width="80%">
+                <p ng-if="promotion.description.length > 0">{{promotion.description}}</p>
+                <button class="button button-block button-energized black bg-yellow b" ui-sref="{{promotion.link}}">
+                    {{promotion.cta}}
+                </button>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

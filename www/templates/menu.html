@@ -1,0 +1,106 @@
+<ion-side-menus enable-menu-with-back-views="false">
+    <ion-side-menu-content drag-content="false">
+        <ion-nav-bar class="bar-stable" align-title="middle">
+            <ion-nav-back-button ng-click="onBackTapped()">
+            </ion-nav-back-button>
+            <ion-nav-buttons side="left">
+                <button class="button button-icon button-clear ion-navicon yellow" menu-toggle="left">
+                </button>
+            </ion-nav-buttons>
+            <ion-nav-title>
+                <img ng-src="img/title.png">
+            </ion-nav-title>
+        </ion-nav-bar>
+        <ion-nav-view nav-transition="none"></ion-nav-view>
+    </ion-side-menu-content>
+    <ion-side-menu side="left" width="{{menuWidth}}">
+        <ion-header-bar align-title="middle" class="bar-light bg-header">
+            <button class="button button-icon button-clear ion-arrow-left-c yellow" menu-toggle="left">
+            </button>
+            <div class="title">
+                <img ng-src="img/title.png">
+            </div>
+        </ion-header-bar>
+        <ion-content class="bg-yellow bg-marker">
+            <ion-list class="sidemenu">
+                <ion-item nav-clear class="item-icon-left" ui-sref="menu.profile" menu-toggle="left" >
+                    <img class="icon" ng-src="img/icons/profile.png"/>
+                    <div class="text">
+                        <p class="main b">{{'MY_PROFILE' | translate}}</p>
+                    </div>
+                    <i class="icon ion-ios-arrow-right right"></i>
+                </ion-item>
+                <ion-item nav-clear class="item-icon-left" ui-sref="menu.hailrequest" menu-toggle="left" ng-hide="'menu.hailrequest' | isState">
+                    <img class="icon" ng-src="img/icons/hailride.png"/>
+                    <div class="text">
+                        <p class="main b">{{'HAIL_RIDE' | translate}}</p>
+                    </div>
+                    <i class="icon ion-ios-arrow-right right"></i>
+                </ion-item>
+                <ion-item nav-clear class="item-icon-left" ui-sref="menu.paymentsettings" menu-toggle="left">
+                    <img class="icon" ng-src="img/icons/payment.png"/>
+                    <div class="text">
+                        <p class="main b">{{'PAYMENT_SETTINGS' | translate}}</p>
+                        <p class="sub">{{'MANAGE_CREDIT' | translate}}</p>
+                    </div>
+                    <i class="icon ion-ios-arrow-right right"></i>
+                </ion-item>
+                <ion-item nav-clear class="item-icon-left" ui-sref="menu.ridecredit" menu-toggle="left">
+                    <img class="icon" ng-src="img/icons/credit.png"/>
+                    <div class="text">
+                        <p class="main b">{{'RIDE_CREDIT' | translate}}</p>
+                        <p class="sub">{{'CHECK_BALANCE' | translate}}</p>
+                    </div>
+                    <i class="icon ion-ios-arrow-right right"></i>
+                </ion-item>
+                <ion-item nav-clear class="item-icon-left" ui-sref="menu.promotions" menu-toggle="left">
+                    <img class="icon" ng-src="img/icons/promotions.png"/>
+                    <div class="text">
+                        <p class="main b">{{'PROMOTIONS' | translate}}</p>
+                        <p class="sub">{{'ANNOUNCEMENTS_COUPON' | translate}}</p>
+                    </div>
+                    <i class="icon ion-ios-arrow-right right"></i>
+                </ion-item>
+                <ion-item nav-clear class="item-icon-left" ui-sref="menu.share" menu-toggle="left">
+                    <img class="icon" ng-src="img/icons/share.png"/>
+                    <div class="text">
+                        <p class="main b">{{'SHARE' | translate}}</p>
+                        <p class="sub">{{'INVITE_EARN' | translate}}</p>
+                    </div>
+                    <i class="icon ion-ios-arrow-right right"></i>
+                </ion-item>
+                <ion-item nav-clear class="item-icon-left" ui-sref="menu.help" menu-toggle="left">
+                    <img class="icon" ng-src="img/icons/help.png"/>
+                    <div class="text">
+                        <p class="main b">{{'HELP_TOUR' | translate}}</p>
+                        <p class="sub">{{'TAKE_TOUR' | translate}}</p>
+                    </div>
+                    <i class="icon ion-ios-arrow-right right"></i>
+                </ion-item>
+                <ion-item nav-clear class="item-icon-left" ui-sref="menu.favorites" menu-toggle="left">
+                    <img class="icon" ng-src="img/icons/favorites.png"/>
+                    <div class="text">
+                        <p class="main b">{{'FAVORITES' | translate}}</p>
+                        <p class="sub">{{'MANAGE_FAVORITES' | translate}}</p>
+                    </div>
+                    <i class="icon ion-ios-arrow-right right"></i>
+                </ion-item>
+                <ion-item nav-clear class="item-icon-left" ui-sref="menu.blacklist" menu-toggle="left">
+                    <img class="icon" ng-src="img/icons/blacklist.png"/>
+                    <div class="text">
+                        <p class="main b">{{'BLACKLIST_STATUS' | translate}}</p>
+                    </div>
+                    <i class="icon ion-ios-arrow-right right"></i>
+                </ion-item>
+                <ion-item nav-clear class="item-icon-left" ng-click="onContactUs()">
+                    <img class="icon" ng-src="img/icons/customercare.png"/>
+                    <div class="text">
+                        <p class="main b">{{'CUSTOMER_CARE' | translate}}</p>
+                        <p class="sub">{{'CALL_SUPPORT' | translate}}</p>
+                    </div>
+                    <i class="icon ion-ios-arrow-right right"></i>
+                </ion-item>
+            </ion-list>
+        </ion-content>
+    </ion-side-menu>
+</ion-side-menus>

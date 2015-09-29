@@ -1,0 +1,49 @@
+<ion-view id="share">
+    <ion-content class="bg-content text-center">
+        <div class="info bg-yellow">
+            <!-- <img ng-src="img/share-dollar.png" width="50%"> -->
+            <img ng-src="{{share.image}}" width="100%">
+            <div class="row">
+                <div class="col col-80 col-offset-10">
+                    <!-- <h3>{{share.title}}</h3> -->
+                    <!-- <h4>FRIEND EARN 50 USD & IF FRIENDS TAKE A RIDE YOU EARN 50 USD !!!</h4> -->
+                    <!-- <h4>Earn Free Rides - Invite and Share Your Code with Your Friends. Once they ride, you will earn one free service ride per friend</h4> -->
+                </div>
+            </div>
+            <div class="arrow-down">
+            </div>
+        </div>
+        <div class="media">
+            <h5 class="code">SHARE YOUR REFERAL CODE: <u>{{share.code}}</u></h5>
+            <div class="row">
+                <div class="col col-25 col-offset-10">
+                    <button class="button button-clear button-dark b" ng-click="onSmsTapped()">
+                        <img ng-src="img/icons/share-sms.png" /> MESSAGE
+                    </button>
+                </div>
+                <div class="col col-25">
+                    <button class="button button-clear button-dark b" ng-click="onFacebookTapped()">
+                        <img ng-src="img/icons/share-fb.png" /> FAECBOOK
+                    </button>
+                </div>
+                <div class="col col-25">
+                    <button class="button button-clear button-dark b" ng-click="onGoogleTapped()">
+                        <img ng-src="img/icons/share-google-plus.png" /> GOOGLE
+                    </button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col col-25 col-offset-25">
+                    <button class="button button-clear button-dark b" ng-click="onTwitterTapped()">
+                        <img ng-src="img/icons/share-twitter.png" /> TWITTER
+                    </button>
+                </div>
+                <div class="col col-25">
+                    <button class="button button-clear button-dark b" ng-click="onWhatsappTapped()">
+                        <img ng-src="img/icons/share-whatsapp.png" /> WHATSAPP
+                    </button>
+                </div>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

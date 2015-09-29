@@ -1,0 +1,43 @@
+<ion-view id="addfavorite">
+    <ion-content class="has-header" scroll="false">
+        <div class="card address">
+            <div class="row">
+                <div class="col col-10 relative z" ng-switch on="mode">
+                    <img ng-switch-when="0" class="icon" ng-src="img/icons/favorite-home.png">
+                    <img ng-switch-when="1" class="icon" ng-src="img/icons/favorite-office.png">
+                    <img ng-switch-when="2" class="icon" ng-src="img/icons/favorite-other.png">
+                    <img ng-switch-when="3" class="icon" ng-src="img/icons/favorite-other.png">
+                </div>
+                <div class="col inputs">
+                    <div class="row name no-margin">
+                        <div class="col">
+                            <label class="item item-input no-padding" id="addfavorite-name">
+                                <input class="width-full" type="text" placeholder="NAME IT" ng-model="favorite.name">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row no-margin">
+                        <div class="col">
+                            <label class="item item-input no-padding" id="addfavorite-address">
+                                <ion-google-place placeholder="ENTER ADDRESS" ng-model="favorite.address" country="LB" on-selected="onAddressSelected(location)" class="width-full" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <google-map></google-map>
+    </ion-content>
+    <div class="bottom width-full z actions">
+        <div class="row">
+            <div class="col">
+                <button class="button button-clear button-energized bg-yellow black no-border no-radius float-right location locateme-btn" ng-click="myLocationTapped()">
+                    <i class="icon ion-navigate"></i>
+                </button>
+                <button class="button button-energized button-block bg-yellow black no-border no-radius b" ng-click="onSetLocationTapped(favorite)">
+                    SET LOCATION
+                </button>
+            </div>
+        </div>
+    </div>
+</ion-view>

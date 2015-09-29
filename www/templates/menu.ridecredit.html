@@ -1,0 +1,38 @@
+<ion-view id="ridecredit">
+    <ion-content class="bg-content padding">
+        <div class="list info">
+            <div class="item yellow no-bg no-border">
+                {{credit.date || 'NEVER RECHARGED'}}
+                <!-- <i class="icon ion-plus-circled green"></i> -->
+            </div>
+            <div class="item yellow no-bg no-border balance">
+                BALANCE NOW
+                <span class="item-note">
+        			{{credit.cash || '0'}} USD
+        		</span>
+            </div>
+        </div>
+        <div class="list recharge a-input">
+            <h3 class="text-center b">RECHARGE MONEY</h3>
+            <label class="item item-input text-center">
+                <input class="text-center" type="number" placeholder="ENTER AMOUNT BETWEEN 200-1000 USD" ng-model="recharge.amount">
+            </label>
+            <!-- <div class="row">
+                <div class="col col-80 col-offset-10">
+                    <div class="item item-checkbox squared checkbox-energized no-bg no-margin">
+                        <label class="checkbox">
+                            <input type="checkbox" ng-model="recharge.haspromo">
+                        </label>
+                        HAVE A PROMO CODE
+                    </div>
+                    <div class="item item-input text-center no-margin">
+                        <input class="text-center" type="text" placeholder="ENTER YOUR CODE HERE" ng-disabled="!recharge.haspromo">
+                    </div>
+                </div>
+            </div> -->
+            <button class="button button-block button-energized bg-yellow b black" ng-click="onSubmitTapped(recharge)">
+                SUBMIT
+            </button>
+        </div>
+    </ion-content>
+</ion-view>

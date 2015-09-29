@@ -1,0 +1,28 @@
+<h3 class="text-center grey title" ng-if="confirm.title" ng-hide="true">
+    {{confirm.title}}
+</h3>
+<div class="legend">
+    <h4 ng-class="{'alert': confirm.alert}">
+		{{confirm.message}}
+	</h4>
+</div>
+<div class="list a-input">
+    <label class="item item-input" ng-if="confirm.input">
+        <input type="text" placeholder="{{confirm.input.placeholder}}" ng-disabled="!confirm.input.isAllowed" ng-model="confirm.input.data">
+    </label>
+    <button ng-if="confirm.buttons.isSubmit" class="button button-block button-energized bg-yellow black b" type="submit" ng-click="onSubmitTapped(confirm.input.data)">
+        {{(confirm.buttons.submit || 'SUBMIT') | translate}}
+    </button>
+    <div class="row button-group" ng-if="!confirm.buttons.isSubmit">
+        <div class="col">
+            <button class="button button-block button-energized bg-yellow black b icon-left ion-checkmark" type="submit" ng-click="onYesTapped(confirm.input.data)">
+                {{(confirm.buttons.yes || 'YES') | translate}}
+            </button>
+        </div>
+        <div class="col {{confirm.buttons.promotePositive ? 'col-33' : ''}}">
+            <button class="button button-block button-dark bg-black b {{confirm.buttons.promotePositive ? 'icon-middle' : 'icon-left'}} ion-close " type="submit" ng-click="onNoTapped(confirm.input.data)">
+                {{confirm.buttons.promotePositive ? '' : (confirm.buttons.no || 'NO') | translate}}
+            </button>
+        </div>
+    </div>
+</div>

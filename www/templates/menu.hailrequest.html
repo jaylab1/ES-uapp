@@ -1,0 +1,115 @@
+<ion-view cache-view="false" id="hailrequest">
+    <ion-nav-buttons side="left">
+        <button class="button button-icon ion-navicon yellow" id="navBtn" ng-click="onNavTapped()">
+        </button>
+    </ion-nav-buttons>
+    <div class="bar bar-subheader meetingpoint" ng-show="requestState == REQUEST_STATE.MEETING_POINT || requestState == REQUEST_STATE.CONFIRM_MEETING_POINT">
+        <p>
+            <img ng-src="img/icons/user-walk.jpg" id="meetingpointImg">
+            {{request.nearestPoint.header.line[0]}}
+        </p>
+        <p class="line2">{{request.nearestPoint.header.line[1]}}</p>
+    </div>
+    <ion-content class="hailrequest" scroll="false">
+        <div class="pickmenu padding" ng-show="requestState > REQUEST_STATE.INIT && (requestState < REQUEST_STATE.MEETING_POINT || requestState > REQUEST_STATE.CONFIRM_MEETING_POINT)">
+            <div class="list" ng-hide="step === 3 && requestState < REQUEST_STATE.PICKUP">
+                <div class="col col-10 vborder" id="pickmenuBorder">
+                </div>
+                <div class="item row" ng-if="step !== 3">
+                    <div class="col col-20 no-padding no-margin text-center">
+                        <img ng-src="img/icons/passenger.png" class="icon">
+                    </div>
+                    <div class="col border" ng-switch on="request.passengers">
+                        <p class="b" ng-switch-when="1">{{'JUST_ME' | translate}}</p>
+                        <p class="b" ng-switch-when="2">{{'TWO_OF_US' | translate}}</p>
+                        <p class="b" ng-switch-when="3">{{'THREE_WILL_RIDE' | translate}}</p>
+                        <p class="b" ng-switch-when="4">{{'PARTY_OF_FOUR' | translate}}</p>
+                    </div>
+                    <div class="right controls">
+                        <button class="button button-icon icon ion-minus" ng-click="onRequestMinusTapped()"></button>
+                        <button class="button button-icon icon ion-plus" ng-click="onRequestPlusTapped()"></button>
+                    </div>
+                </div>
+                <label class="item item-input row" ng-show="requestState > REQUEST_STATE.HAIL">
+                    <div class="col col-20 no-margin text-center">
+                        <img ng-src="img/icons/pickup.png" class="icon">
+                    </div>
+                    <div class="col border">
+                        <ion-google-place placeholder="Enter pickup address" ng-model="request.pickupAddress" country="LB" on-selected="onPickupLocationSelected(location)" ng-disabled="requestState > REQUEST_STATE.PICKUP" />
+                    </div>
+                </label>
+                <label class="item item-input row" ng-show="requestState > REQUEST_STATE.PICKUP">
+                    <div class="col col-20 no-padding no-margin text-center">
+                        <img ng-src="img/icons/pickup.png" class="icon">
+                    </div>
+                    <div class="col">
+                        <ion-google-place placeholder="Enter dropoff address" ng-model="request.dropoffAddress" country="LB" on-selected="onDropoffLocationSelected(location)" ng-disabled="requestState > REQUEST_STATE.DROPOFF" />
+                    </div>
+                </label>
+            </div>
+        </div>
+        <google-map></google-map>
+    </ion-content>
+    <div class="bottom width-full z mode-select">
+        <div class="row">
+            <div class="col">
+                <button class="button button-clear button-energized bg-yellow black no-border no-radius float-right locateme-btn" ng-click="myLocationTapped()">
+                    <i class="icon ion-navigate"></i>
+                </button>
+            </div>
+        </div>
+        <div class="bg-content row no-padding dragdealer relative z-bottom" ng-switch on="step" id="mode-select">
+            <div class="text-center controller handle">
+                <h6 class="grey b">&nbsp</h6>
+                <img ng-src="img/icons/mode-serviss.png" ng-switch-when="1" ng-click="openPopover($event)">
+                <img ng-src="img/icons/mode-serviss-plus.png" ng-switch-when="2" ng-click="openPopover($event)">
+                <img ng-src="img/icons/mode-taxi.png" ng-switch-when="3" ng-click="openPopover($event)">
+            </div>
+            <div class="text-center col">
+                <h6 class="b" ng-class="{'yellow': step == 1, 'grey': step != 1}">SERVISS</h6>
+                <img ng-src="img/icons/mode-off.png">
+            </div>
+            <div class="text-center col">
+                <h6 class="b" ng-class="{'yellow': step == 2, 'grey': step != 2}">SERVISS+</h6>
+                <img ng-src="img/icons/mode-off.png">
+            </div>
+            <div class="text-center col">
+                <h6 class="b taxi" ng-class="{'yellow': step == 3, 'grey': step != 3}">TAXI</h6>
+                <img ng-src="img/icons/mode-off.png">
+            </div>
+            <div class="mode-border"></div>
+        </div>
+    </div>
+</ion-view>
+<script id="mode.popover.html" type="text/ng-template">
+    <ion-popover-view class="mode-info">
+        <ion-content>
+            <div class="list">
+                <div class="item black b">
+                    ETA TIME
+                    <span class="item-note black b">
+                      {{request.mode.etaTime || 5}}MIN
+                    </span>
+                </div>
+                <div class="item black b">
+                    MINIMUM FARE
+                    <span class="item-note black b">
+                      ${{request.mode.minFare}}
+                    </span>
+                </div>
+                <div class="item black b">
+                    MAX PASSENGERS
+                    <span class="item-note black b">
+                      {{request.mode.maxPassengers}}
+                    </span>
+                </div>
+                <div class="item black b">
+                    CANCELATION FEE
+                    <span class="item-note black b">
+                      ${{request.mode.cancelationFee}}
+                    </span>
+                </div>
+            </div>
+        </ion-content>
+    </ion-popover-view>
+</script>

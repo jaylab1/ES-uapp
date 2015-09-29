@@ -1,0 +1,34 @@
+<ion-view>
+    <ion-content class="bg-content padding">
+        <div ng-show="state === STATE.VERIFY_MOBILE">
+            <h4>
+                No Password? No Problem! We'll reset your password once you verify your mobile phone number
+            </h4>
+            <div class="list a-input">
+                <label class="item item-input" id="forgot-mobile">
+                    <input type="tel" placeholder="MOBILE PHONE NUMBER" ng-model="forgot.mobile">
+                </label>
+                <button class="button button-block button-energized bg-yellow b black" ng-click="onSmsTapped(forgot)">
+                    SEND SMS
+                </button>
+            </div>
+        </div>
+
+        <div ng-show="state === STATE.RESET_PASSWORD">
+            <h4>
+                Now? It's time to change your password
+            </h4>
+            <div class="list a-input">
+                <label class="item item-input" id="forgot-password">
+                    <input type="password" placeholder="PASSWORD" ng-model="forgot.password">
+                </label>
+                <label class="item item-input" id="forgot-confirm-password">
+                    <input type="password" placeholder="CONFIRM PASSWORD" ng-model="forgot.confirmPassword">
+                </label>
+                <button class="button button-block button-energized bg-yellow b black" ng-click="onResetTapped(forgot)">
+                    RESET PASSWORD
+                </button>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

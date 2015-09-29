@@ -1,0 +1,28 @@
+<ion-view>
+    <ion-content class="no-header splash bg-content" scroll="true">
+        <img class="logo" ng-src="img/logo.png">
+        <div class="width-full bg-yellow valign lang">
+            <h4 class="valign">{{'LANGUAGE_SETTINGS' | translate}}</h4>
+            <div class="arrow-down"></div>
+        </div>
+        <div class="select" ng-click="onLanguageTapped()">
+            {{language || 'ENGLISH'}}
+            <img class="icon" ng-src="img/icons/select-down.png">
+        </div>
+        <div class="width-full bg-black valign" ui-sref="tour">
+            <h4 class="valign yellow">{{'WALK_THROUGH' | translate}}</h4>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button class="button button-block button-energized bg-yellow black b" ui-sref="header.signin">
+                    LOGIN
+                </button>
+            </div>
+            <div class="col">
+                <button class="button button-block button-energized bg-yellow black b" ui-sref="header.signup">
+                    SIGNUP
+                </button>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>
