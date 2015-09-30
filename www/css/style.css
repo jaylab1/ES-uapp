@@ -1,6 +1,7 @@
 /**
  * Reset
  */
+
 input[disabled] {
     background-color: inherit;
 }
@@ -8,6 +9,7 @@ input[disabled] {
 input[disabled]::-webkit-input-placeholder {
     font-weight: 500;
 }
+
 
 /**
  * Common
@@ -800,6 +802,16 @@ input.ion-google-place[readonly] {
     height: 50px;
 }
 
+#request-confirmed .info .top-info .mode {
+    position: absolute;
+    top: -46px;
+    background-color: rgba(100, 100, 100, 0.6);
+    padding: 5px;
+    color: #FFB300;
+    font-weight: 700;
+    border-radius: 5px 5px 0 0;
+}
+
 #request-confirmed .info .top-info .status {
     position: absolute;
     top: 0;
@@ -810,8 +822,8 @@ input.ion-google-place[readonly] {
 }
 
 #request-confirmed .info .top-info .status img {
-    vertical-align: bottom;
-    margin-right: 15px;
+    vertical-align: middle;
+    margin-right: 5px;
 }
 
 #request-confirmed .info .top-info .arrow .icon:before {
