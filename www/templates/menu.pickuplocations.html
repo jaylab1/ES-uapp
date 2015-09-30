@@ -1,0 +1,23 @@
+<ion-view>
+    <ion-content class="padding">
+
+        <div class="list list-inset">
+            <label class="item item-input">
+                <i class="icon ion-search placeholder-icon"></i>
+                <ion-google-place placeholder="Enter address" ng-model="request.pickupAddress" country="LB" on-selected="onLocationSelected(location)" />
+            </label>
+        </div>
+
+        <button class="button button-block button-light icon-left ion-android-home text-left"> 
+        	Add Home
+        </button>
+        <button class="button button-block button-light icon-left ion-ios-briefcase text-left"> 
+        	Add Work
+        </button>
+
+        <button class="button button-block button-energized bg-yellow" ng-click="onDoneTapped()"> 
+        	DONE
+        </button>
+
+    </ion-content>
+</ion-view>

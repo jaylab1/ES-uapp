@@ -1,0 +1,16 @@
+<ion-view>
+    <ion-content class="padding">
+
+        <div class="list list-inset">
+            <label class="item item-input">
+                <i class="icon ion-search placeholder-icon"></i>
+                <ion-google-place placeholder="Enter address" ng-model="request.dropoffAddress" country="LB" on-selected="onLocationSelected(location)" />
+            </label>
+        </div>
+
+        <button class="button button-block button-energized bg-yellow" ng-click="onDoneTapped()"> 
+        	TAXI FARE: {{request.totalCost ? request.totalCost + '$' : 'select first'}}
+        </button>
+
+    </ion-content>
+</ion-view>

@@ -74,6 +74,10 @@ input[disabled]::-webkit-input-placeholder {
     border-color: #4D4D4D !important;
 }
 
+.text-left {
+    text-align: left;
+}
+
 .arrow-down {
     width: 0;
     height: 0;
@@ -570,6 +574,10 @@ ul.rating li i {
 #hailrequest .meetingpoint p img {
     height: 50px;
     vertical-align: middle;
+}
+
+#hailrequest .get-estimation .button-block {
+    font-size: 1.6em;
 }
 
 

@@ -12,7 +12,7 @@
     </div>
     <ion-content class="hailrequest" scroll="false">
         <div class="pickmenu padding" ng-show="requestState > REQUEST_STATE.INIT && (requestState < REQUEST_STATE.MEETING_POINT || requestState > REQUEST_STATE.CONFIRM_MEETING_POINT)">
-            <div class="list" ng-hide="step === 3 && requestState < REQUEST_STATE.PICKUP">
+            <div class="list" ng-hide="step === 3 && requestState < REQUEST_STATE.REQUEST_CAB">
                 <div class="col col-10 vborder" id="pickmenuBorder">
                 </div>
                 <div class="item row" ng-if="step !== 3">
@@ -34,9 +34,20 @@
                     <div class="col col-20 no-margin text-center">
                         <img ng-src="img/icons/pickup.png" class="icon">
                     </div>
-                    <div class="col border">
+                    <div class="col border" ng-if="requestState != REQUEST_STATE.REQUEST_CAB">
+
                         <ion-google-place placeholder="Enter pickup address" ng-model="request.pickupAddress" country="LB" on-selected="onPickupLocationSelected(location)" ng-disabled="requestState > REQUEST_STATE.PICKUP" />
+
+                        
+
                     </div>
+
+                    <div class="col border" ng-if="requestState == REQUEST_STATE.REQUEST_CAB" ng-click="onPickupTapped()">
+
+                        <input type="text"  ng-model="request.pickupAddress" disabled class="no-border"/>
+
+                    </div>
+
                 </label>
                 <label class="item item-input row" ng-show="requestState > REQUEST_STATE.PICKUP">
                     <div class="col col-20 no-padding no-margin text-center">
@@ -50,7 +61,7 @@
         </div>
         <google-map></google-map>
     </ion-content>
-    <div class="bottom width-full z mode-select">
+    <div ng-hide="requestState === REQUEST_STATE.REQUEST_CAB" class="bottom width-full z mode-select">
         <div class="row">
             <div class="col">
                 <button class="button button-clear button-energized bg-yellow black no-border no-radius float-right locateme-btn" ng-click="myLocationTapped()">
@@ -79,6 +90,11 @@
             </div>
             <div class="mode-border"></div>
         </div>
+    </div>
+    <div ng-show="requestState === REQUEST_STATE.REQUEST_CAB" class="bottom width-full z bg-white get-estimation">
+        <button class="button button-block button-energized button-clear b" ui-sref="menu.estimationfee({request: request})"> 
+            GET ESTIMATION FEE
+        </button>
     </div>
 </ion-view>
 <script id="mode.popover.html" type="text/ng-template">
