@@ -5,7 +5,7 @@
             <div class="top-info row no-padding">
                 <div class="col col-80 no-padding relative status">
                     <span class="mode">
-                        <img ng-src="img/icons/car-yellow.png" width="40px">
+                        <img ng-src="img/icons/car-yellow.png" width="35px">
                         SERVICE+
                     </span>
                     <h4 class="b white">
@@ -46,14 +46,24 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row border-stable">
-                        <div class="col col-50 col-offset-25">
+                    <div class="row">
+                        <!-- <div class="col col-50 col-offset-25">
                             <button class="button button-energized button-block bg-yellow black no-border no-radius b" ng-click="onContactTapped()">
                                 CONTACT
                             </button>
+                        </div> -->
+                        <div class="button-bar">
+                            <button class="button button-energized bg-yellow black no-border no-radius b" ng-click="onContactTapped()">
+                                CONTACT
+                            </button>
+
+                            <button class="button button-energized button-clear yellow no-border no-radius b icon-left icon-middle ion-close" ui-sref="menu.cancelride({request: request})" ng-disabled="request.stage === 'PICKUP'">
+                                CANCEL TRIP
+                            </button>
                         </div>
                     </div>
-                    <div class="row border-stable actions">
+                    <div class="row border-stable actions" ng-hide="
+                    true">
                         <!-- <div class="col text-center" ui-sref="menu.receipt">
                             <img ng-src="img/fare-split.png" width="70px" height="70px">
                             <h5 class="b">FARE SPLIT</h5>

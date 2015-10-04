@@ -10,6 +10,12 @@ input[disabled]::-webkit-input-placeholder {
     font-weight: 500;
 }
 
+.button.icon-left.icon-middle:before {
+    float: none;
+    padding-right: 1px;
+    padding-left: 0;
+}
+
 
 /**
  * Common
@@ -798,17 +804,18 @@ input.ion-google-place[readonly] {
 }
 
 #request-confirmed .info .top-info {
-    background-color: rgba(131, 131, 131, 0.9);
+    background-color: rgba(100, 100, 100, 0.8);/*rgba(131, 131, 131, 0.9);*/
     height: 50px;
 }
 
 #request-confirmed .info .top-info .mode {
     position: absolute;
-    top: -46px;
-    background-color: rgba(100, 100, 100, 0.6);
+    top: -42px;
+    background-color: rgba(100, 100, 100, 0.8);
     padding: 5px;
     color: #FFB300;
     font-weight: 700;
+    font-size: 0.9em;
     border-radius: 5px 5px 0 0;
 }
 
@@ -823,7 +830,7 @@ input.ion-google-place[readonly] {
 
 #request-confirmed .info .top-info .status img {
     vertical-align: middle;
-    margin-right: 5px;
+    margin-right: 2px;
 }
 
 #request-confirmed .info .top-info .arrow .icon:before {
