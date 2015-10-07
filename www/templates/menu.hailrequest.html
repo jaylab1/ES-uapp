@@ -36,7 +36,8 @@
                     </div>
                     <div class="col border" ng-if="requestState != REQUEST_STATE.REQUEST_CAB">
 
-                        <ion-google-place placeholder="Enter pickup address" ng-model="request.pickupAddress" country="LB" on-selected="onPickupLocationSelected(location)" ng-disabled="requestState > REQUEST_STATE.PICKUP" />
+                        <!-- <ion-google-place placeholder="Enter pickup address" ng-model="request.pickupAddress" country="LB" on-selected="onPickupLocationSelected(location)" ng-disabled="requestState > REQUEST_STATE.PICKUP" /> -->
+                        <input type="text" placeholder="Enter Address" g-places-autocomplete ng-model="place" options="{componentRestrictions: { country: 'lb' }}" ng-disabled="requestState > REQUEST_STATE.PICKUP" />
 
                         
 
@@ -54,7 +55,8 @@
                         <img ng-src="img/icons/pickup.png" class="icon">
                     </div>
                     <div class="col">
-                        <ion-google-place placeholder="Enter dropoff address" ng-model="request.dropoffAddress" country="LB" on-selected="onDropoffLocationSelected(location)" ng-disabled="requestState > REQUEST_STATE.DROPOFF" />
+                        <!-- <ion-google-place placeholder="Enter dropoff address" ng-model="request.dropoffAddress" country="LB" on-selected="onDropoffLocationSelected(location)" ng-disabled="requestState > REQUEST_STATE.DROPOFF" /> -->
+                        <input type="text" placeholder="Enter Address" g-places-autocomplete ng-model="place" options="{componentRestrictions: { country: 'lb' }}" ng-disabled="requestState > REQUEST_STATE.DROPOFF" />
                     </div>
                 </label>
             </div>
@@ -93,7 +95,7 @@
     </div>
     <div ng-show="requestState === REQUEST_STATE.REQUEST_CAB" class="bottom width-full z bg-white get-estimation">
         <button class="button button-block button-energized button-clear b" ui-sref="menu.estimationfee({request: request})"> 
-            GET ESTIMATION FEE
+            GET FAIR ESTIMATE
         </button>
     </div>
 </ion-view>

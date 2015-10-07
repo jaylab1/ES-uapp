@@ -1,6 +1,6 @@
 application.factory('SyncTrip', [
-    'Model', 'Mode',
-    function(Model, Mode) {
+    'Model', 'Mode', 'Driver',
+    function(Model, Mode, Driver) {
         'use strict';
 
         var SyncTrip = augment(Model, function(parent) {
@@ -9,7 +9,7 @@ application.factory('SyncTrip', [
              * @param  {row} resulted row from select statement
              */
             this.constructor = function(row) {
-                this._fields = ["user_id", "car_id", "ride_id", "driver_id", "hail", "response", "arrived", "pickup", "dropoff", "cancel", "noservice", "pickup_address", "dropoff_address", "pickup_location", "dropoff_location", "passengers", "fare", "paid", "payment_method", "trip_mode"];
+                this._fields = ["user_id", "car_id", "ride_id", "driver_id", "hail", "response", "arrived", "pickup", "dropoff", "cancel", "noservice", "pickup_address", "dropoff_address", "pickup_location", "dropoff_location", "passengers", "fare", "paid", "payment_method", "trip_mode", "cancel_by_driver"];
                 this._tableName = "SyncTrip";
                 this._modelType = SyncTrip;
                 parent.constructor.call(this, row);
@@ -18,7 +18,7 @@ application.factory('SyncTrip', [
 
                 this.passengers = this.passengers === 0 ? 1 : this.passengers;
                 this.mode = this.trip_mode > 0 ? Mode.FindById(this.trip_mode) : null;
-
+                this.driver = new Driver(row.driver);
                 this.pickupLocation = null;
                 this.dropoffLocation = null;
 

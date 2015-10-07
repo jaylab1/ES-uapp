@@ -1,6 +1,6 @@
 'use strict';
 
-var application = angular.module('application', ['ionic', 'application.controllers', 'ngCordova', 'pascalprecht.translate', 'ngFx', 'ngAnimate', 'LocalStorageModule', 'ionic.rating', 'ion-google-place', 'credit-cards']);
+var application = angular.module('application', ['ionic', 'application.controllers', 'ngCordova', 'pascalprecht.translate', 'ngFx', 'ngAnimate', 'LocalStorageModule', 'ionic.rating', 'credit-cards', 'google.places']);
 var controllers = angular.module('application.controllers', []);
 
 application.run(function($ionicPlatform) {
@@ -168,7 +168,7 @@ application.config(function($stateProvider, $urlRouterProvider, $translateProvid
         .state('menu.hailrequest', {
             url: '/hailrequest',
             params: {
-                request: null
+                request: null,
             },
             templateUrl: "templates/menu.hailrequest.html",
             controller: "HailRequestController@request"
@@ -243,6 +243,38 @@ application.config(function($stateProvider, $urlRouterProvider, $translateProvid
             url: '/blacklist',
             templateUrl: "templates/menu.blacklist.html",
             controller: "UserController@blacklist"
+        })
+        .state('menu.pickuplocations', {
+            url: '/pickuplocations',
+            templateUrl: "templates/menu.pickuplocations.html",
+            controller: "HailRequestController@pickuplocations",
+            params: {
+                request: null
+            }
+        })
+        .state('menu.estimationfee', {
+            url: '/estimationfee',
+            templateUrl: "templates/menu.estimationfee.html",
+            controller: "HailRequestController@estimationfee",
+            params: {
+                request: null
+            }
+        })
+        .state('menu.sendnote', {
+            url: '/sendnote',
+            templateUrl: "templates/menu.sendnote.html",
+            controller: "HailRequestController@sendnote",
+            params: {
+                request: null
+            }
+        })
+        .state('menu.cancelride', {
+            url: '/cancelride',
+            templateUrl: "templates/menu.cancelride.html",
+            controller: "HailRequestController@cancelride",
+            params: {
+                request: null
+            }
         })
         .state('tour', {
             url: '/tour',

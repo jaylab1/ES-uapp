@@ -9,20 +9,60 @@ application.factory('Mode', [
              * @param  {row} resulted row from select statement
              */
             this.constructor = function(row) {
-                this._fields = ["name", "maxPassengers", "minFare", "cancelationFee"];
+                this._fields = ["name", "maxPassengers", "minFare", "cancelationFee", "etaTime"];
                 this._tableName = "Mode";
                 this._modelType = Mode;
                 parent.constructor.call(this, row);
             };
 
             this.getDragDealerStep = function() {
-                if (this.id === Mode.ID.SERVISS)
+                if (this.isService())
                     return 1;
-                else if (this.id === Mode.ID.SERVISS_PLUS)
+                else if (this.isServicePlus())
                     return 2;
-                else if (this.id === Mode.ID.TAXI)
+                else if (this.isTaxi())
                     return 3;
             };
+
+            this.isTaxi = function () {
+                return this.id == Mode.ID.TAXI;
+            };
+
+            this.isService = function () {
+                return this.id == Mode.ID.SERVISS;
+            };
+
+
+            this.isServicePlus = function () {
+                return this.id == Mode.ID.SERVISS_PLUS;
+            };
+
+
+            this.eta = function (onSuccess, onError) {
+                var self = this;
+
+                var http = new Http();
+                http.isLoading = false;
+                http.get({
+                    url: CONFIG.SERVER.URL,
+                    params: {
+                        eta_estimation: true,
+                        tripTypeId: this.id
+                    },
+                    onSuccess: new Callback(function (r) {
+                        if (self.isTaxi())
+                            self.etaTime = r.taxi;
+                        else if (self.isService())
+                            self.etaTime = r.service;
+                        else if (self.isServicePlus())
+                            self.etaTime = r.serviceplus;
+
+                        if (onSuccess) onSuccess.fire(r);
+                    }),
+                    onFail: onError,
+                    onError: onError
+                });
+            }
         });
 
         Mode.ID = {

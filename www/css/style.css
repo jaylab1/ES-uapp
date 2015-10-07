@@ -557,7 +557,7 @@ ul.rating li i {
 
 .hailrequest .pickmenu .list .controls .button:before {
     color: #D4D4D4;
-    font-size: 21px;
+    font-size: 25px;
 }
 
 #hailrequest .meetingpoint {
@@ -589,9 +589,10 @@ ul.rating li i {
 }
 
 
-/*.pac-container {
-    left: 10px !important;
-    width: 95% !important;
+.pac-container {
+    left: 0px !important;
+    width: 100% !important;
+    padding: 10px;
     background-color: rgba(255, 255, 255, 0.9);
 }
 
@@ -601,7 +602,7 @@ ul.rating li i {
 
 .pac-container .pac-item span {
     font-size: 18px;
-}*/
+}
 
 .ion-google-place-container {
     position: fixed;

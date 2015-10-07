@@ -11,10 +11,10 @@ controllers.controller('HailRequestController@request', [
             INIT: 0,
             HAIL: 1,
             PICKUP: 2,
-            MEETING_POINT: 2.5,
-            CONFIRM_MEETING_POINT: 2.75,
             DROPOFF: 3,
-            FAIR: 4
+            MEETING_POINT: 3.5,
+            CONFIRM_MEETING_POINT: 3.75,
+            FARE: 4
         };
         $scope.REQUEST_STATE = REQUEST_STATE;
 
@@ -28,7 +28,11 @@ controllers.controller('HailRequestController@request', [
 
         $scope.requestState = REQUEST_STATE.INIT;
         $scope.request = new HailRequest();
-        $scope.request.setMode(Mode.Find(Mode.ID.TAXI));
+        Mode.FindAll(new Callback(function() {
+            console.log(Mode.FindById(Mode.ID.TAXI));
+            $scope.request.setMode(Mode.FindById(Mode.ID.TAXI));
+        }));
+
 
         var updateView = function() {
             var navBack = function() {
@@ -72,7 +76,7 @@ controllers.controller('HailRequestController@request', [
                 navBack();
                 pickmenuBorder.css("height", "75%");
                 dragDealer.disable();
-            } else if ($scope.requestState === REQUEST_STATE.FAIR) {
+            } else if ($scope.requestState === REQUEST_STATE.FARE) {
                 mapEngine.navigationInfoWindowRightText("WAIT");
                 navBack();
                 dragDealer.disable();
@@ -94,7 +98,7 @@ controllers.controller('HailRequestController@request', [
                     else if ($scope.request.mode.id === Mode.ID.TAXI)
                         dragDealer.setStep(3);
                 } else {
-                    $scope.request.setMode(Mode.Find(Mode.ID.SERVISS));
+                    $scope.request.setMode(Mode.FindById(Mode.ID.SERVISS));
                 }
 
                 if ($scope.request.pickupLocation !== null)
@@ -116,7 +120,7 @@ controllers.controller('HailRequestController@request', [
             mapEngine.gMapsInstance.removePolylines();
             $scope.requestState = REQUEST_STATE.INIT;
             $scope.request = new HailRequest();
-            $scope.request.setMode(Mode.Find(Mode.ID.TAXI));
+            $scope.request.setMode(Mode.FindById(Mode.ID.TAXI));
             dragDealer.setStep(3);
             mapEngine.getMap().setZoom(14);
             updateView();
@@ -157,7 +161,10 @@ controllers.controller('HailRequestController@request', [
             dragDealer.reflow();
             dragDealer.setStep(3);
 
-            User.getInstance().findNearbyCars($scope.request.mode, onNearbyCarsFound);
+            Mode.FindAll(new Callback(function() {
+                User.getInstance().findNearbyCars($scope.request.mode, onNearbyCarsFound);
+            }));
+
         };
 
         var validateDropoffLocation = function(dropoffLocation) {
@@ -202,74 +209,12 @@ controllers.controller('HailRequestController@request', [
             $scope.$apply();
         };
 
-        //deprecated
-        var initAutoCompleteServices = function() {
-            var options = {
-                componentRestrictions: {
-                    country: "LB"
-                }
-            };
-            var pickupInput = document.getElementById("pickup");
-            var dropoffInput = document.getElementById("dropoff");
-            var pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, options);
-            var dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, options);
-            pickupAutocomplete.bindTo('bounds', mapEngine.getMap());
-            dropoffAutocomplete.bindTo('bounds', mapEngine.getMap());
-            var onPlaceChanged = function(place) {
-                //if has no geomtry do nothing
-                if (!place || !place.geometry)
-                    return;
-                //navigate to this place
-                if (place.geometry.viewport) {
-                    mapEngine.getMap().fitBounds(place.geometry.viewport);
-                } else {
-                    mapEngine.getMap().setCenter(place.geometry.location);
-                    mapEngine.getMap().setZoom(17);
-                }
-            };
-            //add listeners to place change event
-            google.maps.event.addListener(pickupAutocomplete, 'place_changed', function() {
-                var place = pickupAutocomplete.getPlace();
-                if (!place.geometry) {
-                    $scope.request.pickupAddress = "";
-                } else {
-                    onPlaceChanged(place);
-                    $scope.request.pickupLocation = place.geometry.location;
-                }
-                $scope.$apply();
-            });
-            //add listeners to place change event
-            google.maps.event.addListener(dropoffAutocomplete, 'place_changed', function() {
-                var place = dropoffAutocomplete.getPlace();
-                if (!place.geometry) {
-                    $scope.request.dropoffAddress = "";
-                } else {
-                    onPlaceChanged(place);
-                    $scope.request.dropoffLocation = place.geometry.location;
-                    validateDropoffLocation($scope.request.dropoffLocation);
-                }
-                $scope.$apply();
-            });
-        };
-
         var initModesPopovers = function() {
             $ionicPopover.fromTemplateUrl('mode.popover.html', {
                 scope: $scope
             }).then(function(popover) {
                 $scope.openPopover = function(event, step) {
                     if (!step) step = $scope.step;
-
-                    if (step === 1) {
-                        $scope.passengers = 4;
-                        $scope.fare = "1.66";
-                    } else if (step === 2) {
-                        $scope.passengers = 3;
-                        $scope.fare = "2.66";
-                    } else if (step === 3) {
-                        $scope.passengers = 5;
-                        $scope.fare = "4";
-                    }
-
                     popover.show(event);
                 };
 
@@ -295,12 +240,15 @@ controllers.controller('HailRequestController@request', [
         };
 
         mapEngine.ready(function() {
-            /*window.addEventListener('native.keyboardhide', function () {
-                mapEngine.gMapsInstance.refresh();
-                dragDealer.setStep($scope.request.mode.getDragDealerStep());
-                dragDealer.reflow();
-            });*/
-            /*initAutoCompleteServices();*/
+            var service = new google.maps.places.PlacesService(mapEngine.getMap());
+            var lebanon = new google.maps.LatLng(33.89, 35.51);
+            service.textSearch({
+                location: lebanon,
+                query: "egnyt",
+                radius: "50000"
+            }, function(r, s) {
+                console.log(r, s);
+            });
 
             var onDestinationLocationChange = new Callback(function() {
                 var g = new Geolocation();
@@ -334,12 +282,20 @@ controllers.controller('HailRequestController@request', [
             });
 
             var onHailRequestPickedup = new Callback(function() {
+                mapEngine.drawRoute({
+                    origin: [$scope.request.pickupLocation.lat(), $scope.request.pickupLocation.lng()],
+                    destination: [$scope.request.dropoffLocation.lat(), $scope.request.dropoffLocation.lng()],
+                    travelMode: "driving",
+                    strokeColor: "#7EBBFE",
+                    strokeWeight: 7
+                });
+                $scope.requestState = REQUEST_STATE.FARE;
                 updateView();
 
                 $scope.request.estimateCost(new Callback(function(cost) {
 
                     $scope.confirm = {
-                        title: 'FAIRE ESTIMATION',
+                        title: 'FARE ESTIMATION',
                         message: Util.String("{0} USD for {1}", [cost, $scope.request.mode.name]),
                         buttons: {
                             isSubmit: false,
@@ -372,8 +328,9 @@ controllers.controller('HailRequestController@request', [
 
                             }), new Callback(function(e) {
                                 $rootScope.onError.fire(e);
-                                $scope.requestState = REQUEST_STATE.DROPOFF;
-                                updateView();
+                                /*$scope.requestState = REQUEST_STATE.DROPOFF;
+                                updateView();*/
+                                resetRequest();
                             }));
                         };
 
@@ -447,13 +404,26 @@ controllers.controller('HailRequestController@request', [
                         }), $rootScope.onError);
                     } else if ($scope.requestState === REQUEST_STATE.PICKUP) {
                         $scope.request.inService(new Callback(function() {
+
+                            $scope.requestState = REQUEST_STATE.DROPOFF;
+                            updateView();
+
+                        }), $rootScope.onError);
+                    } else if ($scope.requestState === REQUEST_STATE.DROPOFF) {
+
+                        var validator = new Validator();
+                        if (validator.isNull($scope.request.dropoffLocation, "Please enter dropoff location first")) {
+                            $rootScope.onError.fire(validator.getError());
+                            return;
+                        }
+
+                        $scope.request.inService(new Callback(function() {
                             if ($scope.request.mode.id === Mode.ID.SERVISS) {
 
                                 $scope.request.validateServicePickup(new Callback(function(isNear) {
 
                                     if (isNear) {
-                                        $scope.requestState = REQUEST_STATE.DROPOFF;
-                                        updateView();
+                                        onHailRequestPickedup.fire();
                                         return;
                                     }
 
@@ -480,15 +450,14 @@ controllers.controller('HailRequestController@request', [
                                         $scope.request.nearestPoint.header.line[0] = " START WALKING TOWARDS MEETING POINT NOW";
                                         nearestPointImg.css("vertical-align", "middle");
                                         $scope.request.watchToMeetingPoint(new Callback(function(userPosition) {
-                                            console.log("wathcing meeting point", userPosition);
-                                            mapEngine.setCenter(userPosition.lat(), userPosition.lng());
                                             mapEngine.drawRoute({
                                                 origin: [userPosition.lat(), userPosition.lng()],
                                                 destination: [$scope.request.nearestPoint.location.lat(), $scope.request.nearestPoint.location.lng()],
-                                                travelMode: "driving",
+                                                travelMode: "walking",
                                                 strokeColor: "#7EBBFE",
                                                 strokeWeight: 7
                                             });
+                                            mapEngine.setCenter($scope.request.nearestPoint.location.lat(), $scope.request.nearestPoint.location.lng());
                                         }), new Callback(function() {
                                             $scope.request.nearestPoint.header.line[0] = "YOU HAVE REACHED YOUR MEETING POINT!";
                                             $scope.request.nearestPoint.header.line[1] = "PLEASE CONFIRM YOUR RIDE REQUEST";
@@ -513,9 +482,9 @@ controllers.controller('HailRequestController@request', [
                                 }), $rootScope.onError);
 
                             } else {
-                                $scope.requestState = REQUEST_STATE.DROPOFF;
-                                updateView();
+                                onHailRequestPickedup.fire();
                             }
+
                         }), $rootScope.onError);
                     } else if ($scope.requestState === REQUEST_STATE.MEETING_POINT) {
                         $cordovaDialogs.alert("Eserviss is wathcing your position until you reach the meeting point", 'Meeting Point');
@@ -527,29 +496,7 @@ controllers.controller('HailRequestController@request', [
                             $scope.request.pickupAddress = address;
                             $scope.$apply();
                         }));
-                        $scope.requestState = REQUEST_STATE.DROPOFF;
-                        updateView();
-                    } else if ($scope.requestState === REQUEST_STATE.DROPOFF) {
-
-                        var validator = new Validator();
-                        if (validator.isNull($scope.request.dropoffLocation, "Please enter dropoff location first")) {
-                            $rootScope.onError.fire(validator.getError());
-                            return;
-                        }
-
-                        $scope.request.inService(new Callback(function() {
-                            mapEngine.drawRoute({
-                                origin: [$scope.request.pickupLocation.lat(), $scope.request.pickupLocation.lng()],
-                                destination: [$scope.request.dropoffLocation.lat(), $scope.request.dropoffLocation.lng()],
-                                travelMode: "driving",
-                                strokeColor: "#7EBBFE",
-                                strokeWeight: 7
-                            });
-                            /*mapEngine.getMap().setZoom(16);*/
-                            $scope.requestState = REQUEST_STATE.FAIR;
-                            onHailRequestPickedup.fire();
-                            updateView();
-                        }), $rootScope.onError);
+                        onHailRequestPickedup.fire();
                     }
 
                     $scope.$apply();
@@ -641,11 +588,10 @@ controllers.controller('HailRequestController@confirmed', [
             }), $rootScope.onError);
 
             $scope.request.onDroppedoff = new Callback(function() {
-                $scope.request.consumeCost(User.getInstance(), new Callback(function() {
-                    $state.go("menu.receipt", {
-                        request: $scope.request
-                    });
-                }), $rootScope.onError);
+                geolocation.stopWatching();
+                $state.go("menu.receipt", {
+                    request: $scope.request
+                });
 
             });
         };
@@ -690,9 +636,9 @@ controllers.controller('HailRequestController@confirmed', [
 
 controllers.controller('HailRequestController@receipt', [
     '$scope', '$state', '$stateParams', 'Validator', '$rootScope', 'Callback',
-    '$ionicHistory', 'User', '$cordovaDialogs',
+    '$ionicHistory', 'User', '$cordovaDialogs', '$timeout',
     function($scope, $state, $stateParams, Validator, $rootScope, Callback,
-        $ionicHistory, User, $cordovaDialogs) {
+        $ionicHistory, User, $cordovaDialogs, $timeout) {
         'use strict';
 
         $ionicHistory.nextViewOptions({
@@ -709,15 +655,19 @@ controllers.controller('HailRequestController@receipt', [
         $scope.request = $stateParams.request;
         $scope.receipt = {};
 
-        User.getInstance().findCredit(new Callback(function(credit) {
+        /*User.getInstance().findCredit(new Callback(function(credit) {
             if (credit.cash < $scope.request.totalCost) {
                 $cordovaDialogs.alert("Please pay the trip cost to the driver", 'Trip Cost');
             } else {
-                User.getInstance().subtractCredit($scope.request.totalCost, new Callback(function() {
+                $scope.request.consumeCost(User.getInstance(), new Callback(function() {
                     $cordovaDialogs.alert("Your trip cost has been charged from your balance", 'Trip Cost');
                 }), $rootScope.onError);
             }
 
+        }), $rootScope.onError);*/
+
+        $scope.request.consumeCost(User.getInstance(), new Callback(function() {
+            $cordovaDialogs.alert("Your trip cost has been charged from your balance", 'Trip Cost');
         }), $rootScope.onError);
 
         $scope.onSubmitTapped = function(receipt) {
@@ -730,7 +680,13 @@ controllers.controller('HailRequestController@receipt', [
             }
 
             $scope.request.feedback(User.getInstance(), $scope.receipt.rating, $scope.receipt.comment, new Callback(function() {
-                $state.go("menu.hailrequest");
+                $ionicHistory.clearCache();
+                $timeout(function() {
+                    $state.go("menu.hailrequest", {}, {
+                        reload: true
+                    });
+                    /*$state.go("menu.hailrequest");*/
+                }, 50);
             }), $rootScope.onError);
 
         };

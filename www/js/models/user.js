@@ -25,8 +25,12 @@ application.factory('User', [
             };
 
             this.findPosition = function(onSuccess, onError) {
+                var self = this;
                 var g = new Geolocation();
-                g.findPosition(onSuccess, onError);
+                g.findPosition(new Callback(function (position) {
+                    self.position = position;
+                    onSuccess.fire(position);
+                }), onError);
             };
 
             this.findShare = function(onSuccess, onError) {
@@ -210,7 +214,7 @@ application.factory('User', [
                         };
 
                         /*var sync = syncArray[0];*/
-                        if (sync.dropoff.trim().length !== 0 || sync.noservice.trim().length !== 0) {
+                        if (sync.dropoff.trim().length !== 0 || sync.noservice.trim().length !== 0 || sync.cancel_by_driver.trim().length !== 0) {
                             onFail.fire();
                             return;
                         } else if (sync.pickup.trim().length !== 0 || sync.arrived.trim().length !== 0 || sync.response.trim().length !== 0) {
@@ -565,7 +569,10 @@ application.factory('User', [
                         userId: this.id,
                     },
                     onSuccess: new Callback(function(r) {
-                        self.credit = r[0];
+                        if (!r) 
+                            self.credit = 0;
+                        else
+                            self.credit = r[0];
                         onSuccess.fire(self.credit);
                     }),
                     onFail: onError,
@@ -641,8 +648,6 @@ application.factory('User', [
                     this.nearbyActionIndex = this.pingActions.push(makeHttpRequest) - 1;
                 else
                     this.pingActions[this.nearbyActionIndex] = makeHttpRequest;
-
-                console.log(mode);
             };
         });
 

@@ -16,9 +16,16 @@ controllers.controller('HomeController@landing', [
         $rootScope, Callback, Geolocation, $ionicModal, $timeout, Settings, $ionicLoading,
         User, $ionicHistory, Mode) {
         'use strict';
+        
 
-        $rootScope.onError = new Callback(function(e) {
-            $cordovaDialogs.alert(e.message, 'Note');
+        $rootScope.onError = new Callback(function(e, onTapped) {
+            var message = e && e.message ? e.message : "Check your internet connectivity";
+
+            $cordovaDialogs.alert(message, 'Note')
+                .then(function () {
+                    if (onTapped) onTapped.fire();
+                    $ionicLoading.hide();
+                });
         });
 
         $rootScope.onProgress = new Callback(function() {
@@ -143,7 +150,7 @@ controllers.controller('HomeController@landing', [
                     }), $rootScope.onError);
 
                 }), null, $rootScope.onError);
-            }), $rootScope.onError)
+            }), $rootScope.onError);
 
         }
 

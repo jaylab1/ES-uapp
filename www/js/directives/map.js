@@ -1,7 +1,8 @@
 application.factory('mapEngine', [
     '$rootScope', 'Util',
     function($rootScope, Util) {
-        return {
+        console.log("make a mapEngine instance");
+        var mapObject = {
             params: null,
 
             centerDivContainer: null,
@@ -9,6 +10,12 @@ application.factory('mapEngine', [
             navigationInfoWindow: null,
             gMapsInstance: null,
             isReady: false,
+            init: function() {
+                var self = this;
+                $rootScope.$on('googleMap@notReady', function() {
+                    self.isReady = false;
+                });
+            },
             setCenter: function(lat, lng) {
                 this.params = {
                     lat: lat,
@@ -44,6 +51,9 @@ application.factory('mapEngine', [
                     routeConfig: routeConfig
                 };
                 $rootScope.$broadcast('googleMap@DrawRoute');
+            },
+            removeRoutes: function() {
+                this.gMapsInstance.removePolylines();
             },
             getCenterDiv: function() {
                 if (this.centerDivContainer === null) {
@@ -130,7 +140,7 @@ application.factory('mapEngine', [
                 this.navigationInfoWindow.rightText.innerHTML = "<h5 style='margin: 0; line-height: 44px;' class='b'>" + innerHtml + "</h5>" + ' <i class="icon ion-chevron-right yellow right" style="margin: 0; line-height: 44px; right: 5px !important;"></i>';
             },
             navigationInfoWindowLeftText: function(imgSrc, info) {
-                
+
                 var parentDivStyle = '';
                 var imgStyle = Util.String("style='vertical-align: {0};'", ["middle"]);
 
@@ -149,7 +159,7 @@ application.factory('mapEngine', [
                 if (info && !imgSrc)
                     parentDivStyle = '';
 
-                this.navigationInfoWindow.leftText.innerHTML = Util.String("<div class='text-center' {0}> {1} {2} </div>", [parentDivStyle, imgElem, infoElem]);
+                this.navigationInfoWindow.leftText.innerHTML = Util.String("<div class='text-center  yellow b' {0}> {1} {2} </div>", [parentDivStyle, imgElem, infoElem]);
             },
             addCenterMarker: function() {
                 $rootScope.$broadcast('googleMap@AddCenterMarker');
@@ -157,10 +167,10 @@ application.factory('mapEngine', [
             ready: function(onReady) {
                 var self = this;
                 var destroyListener = $rootScope.$on('map@ready', function() {
-                    onReady();
                     destroyListener();
                     self.gMapsInstance.refresh();
                     self.isReady = true;
+                    onReady();
                 });
 
             },
@@ -183,7 +193,8 @@ application.factory('mapEngine', [
                 return this.gMapsInstance.getCenter();
             },
             getMap: function() {
-                return this.gMapsInstance.map;
+                if (this.gMapsInstance) return this.gMapsInstance.map;
+                return null;
             },
             addMarker: function(lat, lng, icon) {
                 this.params = {
@@ -201,8 +212,16 @@ application.factory('mapEngine', [
                     options: options || {}
                 };
                 $rootScope.$broadcast('googleMap@AddUserAccuracy');
+            },
+            resetMap: function () {
+                console.log("resetMap");
+                $rootScope.$broadcast('googleMap@resetMap');
             }
         };
+
+        mapObject.init();
+
+        return mapObject;
     }
 ]);
 
@@ -217,6 +236,8 @@ application.directive('googleMap', [
             restrict: 'AE',
             replace: true,
             link: function(scope, element, attrs) {
+                $rootScope.$broadcast('googleMap@notReady');
+
                 var resizeMap = function() {
                     element[0].style.height = attrs.height || "100%";
                     element[0].style.width = attrs.width || "100%";
@@ -231,6 +252,7 @@ application.directive('googleMap', [
                     gMaps.removePolygons();
                     gMaps.removePolylines();
                     gMaps.refresh();
+                    gMaps.setZoom(15);
                     element.append(gMaps.getDiv());
                     $rootScope.$broadcast('googleMap@resetMap');
                     return;
@@ -243,12 +265,10 @@ application.directive('googleMap', [
                     lng: attrs.lng || 35.4954794,
                     disableDefaultUI: true
                 });
-                console.log(gMaps);
                 resizeMap();
                 google.maps.event.addListenerOnce(gMaps.map, 'tilesloaded', function() {
                     $rootScope.$broadcast('googleMap@preReady');
                 });
-                console.log(gMaps);
             },
             controller: function($scope, mapEngine, $rootScope) {
 
@@ -257,11 +277,17 @@ application.directive('googleMap', [
                     if (mapEngine.navigationInfoWindow) mapEngine.navigationInfoWindow.div.style.display = "none";
                     if (mapEngine.acceleratedMarker) mapEngine.acceleratedMarker.style.display = "none";
                     gMaps.removePolylines();
-                    $rootScope.$broadcast('map@ready');
+                    if (mapEngine.accuracyMarker && mapEngine.accuracyMarker.infoBubble) {
+                        mapEngine.accuracyMarker.infoBubble.close();
+                        mapEngine.accuracyMarker.infoBubble.setMap(null);
+                        mapEngine.accuracyMarker = null;
+                    }
+                    $rootScope.$broadcast('googleMap@preReady');
                 });
 
                 $scope.$on('googleMap@preReady', function() {
                     mapEngine.gMapsInstance = gMaps;
+                    google.maps.event.trigger(gMaps.map, "resize");
                     $rootScope.$broadcast('map@ready');
                 });
 
@@ -328,6 +354,10 @@ application.directive('googleMap', [
                     if (accuracyMarker) {
                         gMaps.removeMarker(accuracyMarker.center);
                         gMaps.removeMarker(accuracyMarker.outer);
+                        if (accuracyMarker.infoBubble) {
+                            accuracyMarker.infoBubble.close();
+                            accuracyMarker.infoBubble.setMap(null);
+                        }
                     }
 
                     accuracyMarker = {};
@@ -360,7 +390,7 @@ application.directive('googleMap', [
                     });
 
                     if (mapEngine.params.options.info) {
-                        var infoBubble = new InfoBubble({
+                        accuracyMarker.infoBubble = new InfoBubble({
                             padding: "30px",
                             map: gMaps.map,
                             position: new google.maps.LatLng(mapEngine.params.lat, mapEngine.params.lng),
@@ -375,7 +405,8 @@ application.directive('googleMap', [
                             arrowStyle: 0,
                             shadowStyle: 0,
                         });
-                        infoBubble.open();
+                        accuracyMarker.infoBubble.open();
+                        mapEngine.accuracyMarker = accuracyMarker;
                     }
                 });
 
