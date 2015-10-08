@@ -41,8 +41,8 @@ controllers.controller('HomeController@landing', [
         $rootScope.ifLocationEnabled = function(onEnabled, onNotEnabled) {
             var locationoffModal = null;
 
-            /*onEnabled.fire();
-            return;*/
+            onEnabled.fire();
+            return;
 
             var g = new Geolocation();
             g.isLocationEnabled(new Callback(function(isEnabled) {

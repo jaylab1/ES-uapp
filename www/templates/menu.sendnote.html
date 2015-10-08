@@ -3,7 +3,8 @@
         <div class="list list-inset">
             <label class="item item-input">
                 <i class="icon ion-home placeholder-icon"></i>
-                <ion-google-place placeholder="Enter address" ng-model="request.pickupAddress" country="LB" on-selected="onLocationSelected(location)" ng-disabled="true" />
+                <!-- <ion-google-place placeholder="Enter address" ng-model="request.pickupAddress" country="LB" on-selected="onLocationSelected(location)" ng-disabled="true" /> -->
+                <input type="text" placeholder="Enter Address" g-places-autocomplete ng-model="request.pickupAddress" options="{componentRestrictions: { country: 'lb' }}" ng-disabled="true" />
             </label>
             <div class="item item-divider yellow b bg-content">
                 SEND NOTE FOR DRIVER

@@ -214,7 +214,8 @@ application.factory('User', [
                         };
 
                         /*var sync = syncArray[0];*/
-                        if (sync.dropoff.trim().length !== 0 || sync.noservice.trim().length !== 0 || sync.cancel_by_driver.trim().length !== 0) {
+
+                        if (sync.dropoff.trim().length !== 0 || sync.noservice.trim().length !== 0 || sync.cancel_by_driver.trim().length !== 0 || sync.cancel.trim().length !== 0) {
                             onFail.fire();
                             return;
                         } else if (sync.pickup.trim().length !== 0 || sync.arrived.trim().length !== 0 || sync.response.trim().length !== 0) {

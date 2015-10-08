@@ -185,8 +185,11 @@ application.factory('HailRequest', [
                                 self.isSyncable = false;
                                 self.stage = HailRequest.STAGE.CANCEL;
                                 if (self.onDriverCanceled) self.onDriverCanceled.fire();
-                            } else 
-                            if (sync.dropoff.trim().length !== 0) {
+                            } else if (sync.cancel.trim().length !== 0) {
+                                self.status = "RIDE IS CANCELED";
+                                self.isSyncable = false;
+                                self.stage = HailRequest.STAGE.CANCEL;
+                            }  else if (sync.dropoff.trim().length !== 0) {
                                 self.status = "THANKS FOR USING ESERVISS";
                                 self.isSyncable = false;
                                 self.stage = HailRequest.STAGE.DROPOFF;

@@ -588,7 +588,6 @@ ul.rating li i {
     font-size: 1.6em;
 }
 
-
 .pac-container {
     left: 0px !important;
     width: 100% !important;
@@ -805,19 +804,24 @@ input.ion-google-place[readonly] {
 }
 
 #request-confirmed .info .top-info {
-    background-color: rgba(100, 100, 100, 0.8);/*rgba(131, 131, 131, 0.9);*/
+    background-color: rgba(100, 100, 100, 0.8);
+    /*rgba(131, 131, 131, 0.9);*/
     height: 50px;
 }
 
-#request-confirmed .info .top-info .mode {
-    position: absolute;
-    top: -42px;
+#request-confirmed .mode {
+    display: inline-block;
     background-color: rgba(100, 100, 100, 0.8);
     padding: 5px;
     color: #FFB300;
     font-weight: 700;
-    font-size: 0.9em;
+    font-size: 1.2em;
     border-radius: 5px 5px 0 0;
+    margin-left: 10px;
+}
+
+#request-confirmed .mode img {
+    vertical-align: middle;
 }
 
 #request-confirmed .info .top-info .status {
