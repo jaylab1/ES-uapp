@@ -1,0 +1,7 @@
+<div class="close ads" ng-if="onCloseTapped">
+    <button class="button button-icon icon ion-ios-close" ng-click="onCloseTapped()"></button>
+</div>
+<p ng-hide="ad.image.length > 0">
+    {{ad.text}}
+</p>
+<img class="full-image" ng-src="{{ad.image}}" ng-show="ad.image.length > 0">

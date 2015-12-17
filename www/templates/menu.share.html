@@ -33,7 +33,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col col-25 col-offset-25">
+                <div class="col col-25 col-offset-10">
                     <button class="button button-clear button-dark b" ng-click="onTwitterTapped()">
                         <img ng-src="img/icons/share-twitter.png" /> TWITTER
                     </button>
@@ -41,6 +41,14 @@
                 <div class="col col-25">
                     <button class="button button-clear button-dark b" ng-click="onWhatsappTapped()">
                         <img ng-src="img/icons/share-whatsapp.png" /> WHATSAPP
+                    </button>
+                </div>
+                <div class="col col-25">
+                    <a class="button button-clear button-dark b email" href="mailto:?subject={{title}}&body={{message}}" ng-show="isIos">
+                        <img ng-src="img/icons/share-email.png" /> EMAIL
+                    </a>
+                    <button class="button button-clear button-dark b email" ng-click="onEmailTapped()" ng-show="isAndroid">
+                        <img ng-src="img/icons/share-email.png" /> EMAIL
                     </button>
                 </div>
             </div>

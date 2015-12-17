@@ -34,47 +34,29 @@ controllers.factory('Model', [
                 }
             },
 
-            /**
-             * get Primary Key
-             * @return {integer}
-             */
+            
             getPrimaryKey: function() {
                 return this.id;
             },
 
-            /**
-             * Set Primary Key
-             * @param {integer} id
-             */
+            
             setPrimaryKey: function(id) {
                 this.id = id;
             },
 
-            /**
-             * Delete Model from database
-             * @param  {Callback} onSuccess
-             * @param  {Callback} onFail
-             */
+            
             delete: function(onSuccess, onFail) {
                 this._dbConnector.deleteById(this.getPrimaryKey(), onSuccess, onFail);
                 return this;
             },
 
-            /**
-             * Udatep Model from database
-             * @param  {Callback} onSuccess [description]
-             * @param  {Callback} onFail    [description]
-             */
+            
             update: function(onSuccess, onFail) {
                 this._dbConnector.updateById(this.getPrimaryKey(), this.toJson(), onSuccess, onFail);
                 return this;
             },
 
-            /**
-             * save or update model in database
-             * @param  {Callback} onSuccess
-             * @param  {Callback} onFail
-             */
+            
             save: function(onSuccess, onFail) {
 
                 if (this.id) {
@@ -86,18 +68,12 @@ controllers.factory('Model', [
                 return this;
             },
 
-            /**
-             * parse object to string
-             * @return {String} string descripes the model
-             */
+            
             toString: function() {
                 return this.id;
             },
 
-            /**
-             * parse object to json
-             * @return {JSON} current object
-             */
+            
             toJson: function() {
                 var json = {
                     id: this.id

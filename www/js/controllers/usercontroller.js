@@ -9,10 +9,7 @@ controllers.controller('UserController@signin', [
             popupConfirmCode = null;
 
         $scope.login = {};
-        /*$scope.login = {
-            email: 'heshamhossam57@gmail.com',
-            password: '123456'
-        };*/
+        
 
         Mode.FindAll();
 
@@ -204,6 +201,10 @@ controllers.controller('UserController@signup', [
 
                 User.getInstance().signup(new Callback(function() {
 
+                    $scope.onCloseTapped = function() {
+                        popupConfirmCode.close();
+                    };
+
                     popupConfirmCode = $ionicPopup.confirm({
                         templateUrl: "templates/confirm.popup.html",
                         cssClass: "eserviss-confirm",
@@ -245,6 +246,7 @@ controllers.controller('UserController@signup', [
             if (typeof cordova === "undefined") {
                 $scope.signup.country = "Lebanon";
                 $scope.signup.mobile.code = "+961";
+                
                 return;
             }
 
@@ -257,7 +259,11 @@ controllers.controller('UserController@signup', [
             };
 
             Country.FindAll(new Callback(function(countries) {
-
+                countries.sort(function(a, b) {
+                    if (a.name < b.name) return -1;
+                    if (a.name > b.name) return 1;
+                    return 0;
+                });
                 for (var i = 0; i < countries.length; i++) {
                     countryConfig.items.push({
                         text: countries[i].name,
@@ -394,11 +400,7 @@ controllers.controller('UserController@profile', [
 
         var imageManager = new ImageManager();
 
-        /**
-         * Validate profile picture
-         * @param  {string} imageUrl path of the image
-         * @param {Callback} success validation passed
-         */
+        
         var validateProfilePicture = function(imageUrl, onSuccess) {
 
             var defaultError = new Error("Error happened while setting profile picture, please try again");
@@ -423,19 +425,17 @@ controllers.controller('UserController@profile', [
 
         $scope.onCameraTapped = function() {
             imageManager.locationed().fromCamera(new Callback(function(imageUrl) {
-                validateProfilePicture(imageUrl, new Callback(function() {
-                    $scope.user.profilePicture = imageUrl;
-                    $scope.$apply();
-                }));
+                $scope.user.profilePicture = imageUrl;
+                $scope.$apply();
+                
             }));
         };
 
         $scope.onGalleryTapped = function() {
             imageManager.locationed().fromGallery(new Callback(function(imageUrl) {
-                validateProfilePicture(imageUrl, new Callback(function() {
-                    $scope.user.profilePicture = imageUrl;
-                    $scope.$apply();
-                }));
+                $scope.user.profilePicture = imageUrl;
+                $scope.$apply();
+                
             }));
         };
 
@@ -471,8 +471,10 @@ controllers.controller('UserController@profile', [
             $ionicHistory.nextViewOptions({
                 disableBack: true
             });
-            User.getInstance().logout();
-            $state.go("landing");
+            User.getInstance().logout(new Callback(function() {
+                $state.go("landing");
+            }), $rootScope.onError);
+
         };
 
 
@@ -529,10 +531,10 @@ controllers.controller('UserController@forget', [
 
                 $scope.onSubmitTapped = function(code) {
                     popupConfirmPhone.close();
-                    User.getInstance().forgotPasswordValidateMobile(code, new Callback(function () {
-                        $scope.state = STATE.RESET_PASSWORD;    
+                    User.getInstance().forgotPasswordValidateMobile(code, new Callback(function() {
+                        $scope.state = STATE.RESET_PASSWORD;
                     }), $rootScope.onError)
-                    
+
                 };
                 popupConfirmPhone = $ionicPopup.confirm({
                     templateUrl: "templates/confirm.popup.html",
@@ -561,11 +563,11 @@ controllers.controller('UserController@forget', [
             }
 
             User.getInstance().password = forgot.password;
-            User.getInstance().forgotPasswordReset(new Callback(function () {
+            User.getInstance().forgotPasswordReset(new Callback(function() {
                 $cordovaDialogs.alert("Your password is reseted successfully", "Password Reset")
-                .then(function () {
-                    $state.go("header.signin");
-                });
+                    .then(function() {
+                        $state.go("header.signin");
+                    });
             }), $rootScope.onError);
 
 
@@ -581,20 +583,14 @@ controllers.controller('UserController@paymentsettings', [
         Callback, Validator, $cordovaDialogs) {
         'use strict';
 
-        /*$scope.card = {
-            name: "Jon Doe",
-            number: "4242424242424242",
-            cvc: "111",
-            exp_year: "17",
-            exp_month: "08"
-        };*/
+        
 
         $scope.card = {};
         $scope.creditCards = [];
 
         User.getInstance().findCreditCards(new Callback(function(creditCards) {
             $scope.creditCards = creditCards;
-            $scope.$apply();
+            //$scope.$apply();
         }), $rootScope.onError);
 
         var validateCreditInputs = function(credit) {
@@ -615,6 +611,8 @@ controllers.controller('UserController@paymentsettings', [
         };
 
         $scope.onEditSaveTapped = function(credit) {
+            
+
             if (validateCreditInputs(credit)) {
                 $rootScope.onProgress.fire();
                 User.getInstance().saveCreditCard(credit, new Callback(function(motivationMessage) {
@@ -628,6 +626,8 @@ controllers.controller('UserController@paymentsettings', [
         };
 
         $scope.onPrepaidSubmitTapped = function(prepaidCode) {
+            
+
             var validator = new Validator();
             if (validator.isEmpty(prepaidCode, "Please enter a valid prepaid card code")) {
                 $rootScope.onError.fire(validator.getError());
@@ -711,8 +711,10 @@ controllers.controller('UserController@blacklist', [
             spamProgress = angular.element(document.getElementById("spam-progress"));
 
         User.getInstance().findBlacklist(new Callback(function(r) {
-            fakeProgress.css("width", Util.String("{0}%", [r.fake]));
-            spamProgress.css("width", Util.String("{0}%", [r.spam]));
+            var fakePct = r && r.fake ? r.fake : 0;
+            var spamPct = r && r.spam ? r.spam : 0;
+            fakeProgress.css("width", Util.String("{0}%", [fakePct]));
+            spamProgress.css("width", Util.String("{0}%", [spamPct]));
         }), $rootScope.onError);
     }
 ]);

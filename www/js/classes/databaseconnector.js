@@ -9,23 +9,14 @@ controllers.factory('DatabaseConnector', [
                 this._tableName = tableName;
             },
 
-            /**
-             * Delete Model from database
-             * @param {string} id to be deleted from table
-             * @param  {Callback} onSuccess
-             * @param  {Callback} onFail
-             */
+            
             deleteById: function(id, onSuccess, onFail) {
 
                 var deleteQuery = "delete from " + this._tableName + " where id = " + id + ";";
                 DatabaseConnector.Query(deleteQuery, [], onSuccess, onFail);
             },
 
-            /**
-             * Udatep Model from database
-             * @param  {Callback} onSuccess [description]
-             * @param  {Callback} onFail    [description]
-             */
+            
             updateById: function(id, params, onSuccess, onFail) {
 
                 var setQuery = 'SET ';
@@ -38,18 +29,11 @@ controllers.factory('DatabaseConnector', [
                 setQuery = setQuery.substring(0, setQuery.length - 2);
 
                 var updateQuery = "UPDATE " + this._tableName + " " + setQuery + " WHERE id = " + id + ";";
-                /*alert(updateQuery);
-				alert(JSON.stringify(values));*/
+                
                 DatabaseConnector.Query(updateQuery, values, onSuccess, onFail);
             },
 
-            /**
-             * Create a new Database record
-             * @param {Class} ChildModel child of model class
-             * @param {JSON} params to insert in column: value format
-             * @param {Callback} onSuccess
-             * @param {Callback} onFail
-             */
+            
             insert: function(ChildModel, params, onSuccess, onFail) {
 
                 var columns = '';
@@ -70,7 +54,7 @@ controllers.factory('DatabaseConnector', [
 
                     params['id'] = result.insertId;
                     var childModel = new ChildModel(params);
-                    /*Util.Alert(childModel.toJson());*/
+                    
                     onSuccess.fire(childModel);
                 });
 
@@ -78,10 +62,7 @@ controllers.factory('DatabaseConnector', [
                 DatabaseConnector.Query(queryInsert, values, onInserted, onFail);
             },
 
-            /**
-             * Find Models in Database
-             * @param {JSON} config contains onSuccess, onFail, ChildModel, [isDistinct], [tableName], [columns], [conditions], [conditionType], [order], [limit]
-             */
+            
             select: function(config) {
 
                 var tableName = this._tableName;
@@ -136,16 +117,12 @@ controllers.factory('DatabaseConnector', [
                     }
                 });
                 onSearched.setExtras(config);
-                /*alert(querySelect);
-                Util.Alert(conditionValues);*/
+                
                 //console.log(query);
                 DatabaseConnector.Query(querySelect, conditionValues, onSearched, config.onFail);
             },
 
-            /**
-             * Find First Model in Database
-             * @param {JSON} config contains onSuccess, onFail, ChildModel, [conditions], [conditionType]
-             */
+            
             selectFirst: function(config) {
                 config.order = {
                     by: "id",
@@ -155,10 +132,7 @@ controllers.factory('DatabaseConnector', [
                 this.select(config);
             },
 
-            /**
-             * Find Last Model in Database
-             * @param {JSON} config contains onSuccess, onFail, ChildModel, [conditions], [conditionType]
-             */
+            
             selectLast: function(config) {
                 config.order = {
                     by: "id",
@@ -178,11 +152,7 @@ controllers.factory('DatabaseConnector', [
             DatabaseConnector.Connector = null;
         }
 
-        /**
-         * Get DatabaseConnector Instance When ready
-         * @param  {Callback} onSuccess called when DatabaseConnector is ready
-         * @param  {Callback} onFail
-         */
+        
         DatabaseConnector.getConnector = function(onSuccess, onFail) {
 
             var self = this;
@@ -207,10 +177,7 @@ controllers.factory('DatabaseConnector', [
                 });
 
                 DatabaseConnector.Connector.transaction(function(tx) {
-                    /*tx.executeSql('DROP TABLE IF EXISTS Language');
-                    tx.executeSql('DROP TABLE IF EXISTS Category');
-                    tx.executeSql('DROP TABLE IF EXISTS SubCategory');
-                    tx.executeSql('DROP TABLE IF EXISTS QA');*/
+                    
 
                     var tablesCreated = 0,
                         isOnSuccessCalled = false;
@@ -248,17 +215,10 @@ controllers.factory('DatabaseConnector', [
 
         }
 
-        /**
-         * Delete DatabaseConnector from DatabaseConnector
-         * @param {string} query SQL query to make
-         * @param {Array} values values to bind to the query
-         * @param  {Callback} onSuccess
-         * @param  {Callback} onFail
-         */
+        
         DatabaseConnector.Query = function(query, values, onSuccess, onFail) {
 
-            /*Util.Alert(values);
-			alert(query);*/
+            
             var onConnected = new Callback(function(db) {
 
                 db.transaction(function(tx) {
@@ -278,11 +238,7 @@ controllers.factory('DatabaseConnector', [
             DatabaseConnector.getConnector(onConnected, onFail);
         }
 
-        /**
-         * format conditions to .. ?, ? and pass array of values
-         * @param  {JSON} params conditions to format
-         * @param  {string} conditionType AND or OR to concatenate
-         */
+        
         DatabaseConnector._FormatConditions = function(params, conditionType) {
 
             if (conditionType == null)
@@ -316,10 +272,7 @@ controllers.factory('DatabaseConnector', [
             };
         }
 
-        /**
-         * Condition Operators
-         * @type {String}
-         */
+        
         DatabaseConnector.CONDITION_OPERATOR = {
             AND: 'AND',
             OR: 'OR'
@@ -329,10 +282,7 @@ controllers.factory('DatabaseConnector', [
             NOT_NULL: 'NOT_NULL'
         }
 
-        /**
-         * Order by
-         * @type {String}
-         */
+        
         DatabaseConnector.ORDER = {
             FIRST: 'asc',
             LAST: 'desc'

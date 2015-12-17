@@ -14,7 +14,7 @@ controllers.factory('Geolocation', [
                 }, function(results, status) {
                     if (status == google.maps.GeocoderStatus.OK) {
                         if (results[0]) {
-                            onSuccess.fire(results[0].formatted_address);
+                            onSuccess.fire(results[0].formatted_address, results[0], results);
                         } else {
                             onFail.fire("No results found");
                         }
@@ -58,6 +58,7 @@ controllers.factory('Geolocation', [
 
             },
             stopWatching: function() {
+                console.log("stop wathcing", this.watchId);
                 navigator.geolocation.clearWatch(this.watchId);
             }
         });

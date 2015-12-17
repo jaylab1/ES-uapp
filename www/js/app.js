@@ -14,7 +14,7 @@ application.run(function($ionicPlatform) {
     });
 });
 
-application.config(function($stateProvider, $urlRouterProvider, $translateProvider, localStorageServiceProvider) {
+application.config(function($stateProvider, $urlRouterProvider, $translateProvider, localStorageServiceProvider, $ionicConfigProvider) {
 
     $translateProvider
         .translations('en', {
@@ -47,7 +47,7 @@ application.config(function($stateProvider, $urlRouterProvider, $translateProvid
             RIDE_CREDIT: 'RIDE CREDIT',
             CHECK_BALANCE: 'Check Current Balance',
             PROMOTIONS: 'PROMOTIONS',
-            ANNOUNCEMENTS_COUPON: 'Announcements and Coupon Code',
+            ANNOUNCEMENTS_COUPON: 'Announcements and Coupon Number',
             SHARE: 'SHARE',
             INVITE_EARN: 'Invite Friend and Earn Free Rides',
             HELP_TOUR: 'HELP/TOUR',
@@ -89,23 +89,23 @@ application.config(function($stateProvider, $urlRouterProvider, $translateProvid
             FEMALE: 'مؤنث',
             MY_PROFILE: 'الصفحة الشخصية',
             HAIL_RIDE: 'أطلب رحلة',
-            PAYMENT_SETTINGS: 'إعدادات الدفع',
-            MANAGE_CREDIT: 'دير بطاقاتك الإئتمانية',
+            PAYMENT_SETTINGS: 'طريقة الدفع',
+            MANAGE_CREDIT: 'إدارة بطاقاتك الإئتمانية',
             RIDE_CREDIT: 'نقاط الرحلات',
             CHECK_BALANCE: 'تفحص المبلغ الحالى',
-            PROMOTIONS: 'الترقيات',
-            ANNOUNCEMENTS_COUPON: 'الإعلانات واكواد الكوبونات',
+            PROMOTIONS: 'العروض',
+            ANNOUNCEMENTS_COUPON: 'ألإعلانات ورقم الفسيمة',
             SHARE: 'مشاركة',
             INVITE_EARN: 'أدعو اصدقائك واكسب رحلات مجانية',
             HELP_TOUR: 'مساعدة/جولة',
             TAKE_TOUR: 'خد جولة سريعة',
             FAVORITES: 'المفضلات',
-            MANAGE_FAVORITES: 'دير أماكنك المفضلة',
+            MANAGE_FAVORITES: 'تحديد الموقع المفضل لديك',
             BLACKLIST_STATUS: 'القائمة السوداء',
             FREE_RIDES: 'رحلات مجانية',
             SEE_FREE_RIDES: 'تفحص عدد الرحلات المجانيه المكتسبة',
-            CUSTOMER_CARE: 'الدعم الفنى',
-            CALL_SUPPORT: 'اتصل بفريقنا للدعم الفنى',
+            CUSTOMER_CARE: 'خدمات المشتركين',
+            CALL_SUPPORT: 'الاتصال بفريق خدمة المشتركين',
             JUST_ME: 'أنا بس',
             TWO_OF_US: 'أتنين مننا',
             THREE_WILL_RIDE: 'تلاته هيركبوا سوا',
@@ -118,6 +118,9 @@ application.config(function($stateProvider, $urlRouterProvider, $translateProvid
     document.body.classList.remove('platform-ios');
     document.body.classList.remove('platform-android');
     document.body.classList.add('platform-ios');
+
+    //disable back
+    $ionicConfigProvider.views.swipeBackEnabled(false);
 
     $stateProvider
         .state('splash', {
@@ -188,6 +191,14 @@ application.config(function($stateProvider, $urlRouterProvider, $translateProvid
             },
             templateUrl: "templates/menu.receipt.html",
             controller: "HailRequestController@receipt"
+        })
+        .state('menu.freereceipt', {
+            url: '/freereceipt',
+            params: {
+                request: null
+            },
+            templateUrl: "templates/menu.freereceipt.html",
+            controller: "HailRequestController@freereceipt"
         })
         .state('menu.favorites', {
             url: '/favorites',
@@ -282,6 +293,43 @@ application.config(function($stateProvider, $urlRouterProvider, $translateProvid
         });
 
 
-    $urlRouterProvider.otherwise('/landing');
-    /*$urlRouterProvider.otherwise('/menu/paymentsettings');*/
+    // $urlRouterProvider.otherwise('/landing');
+    $urlRouterProvider.otherwise('/splash');
+    
+});
+
+//this workaround to fix ios 9 infinite callstack issue
+application.run(function ($ionicHistory, $timeout, $state) {
+
+    Function.prototype.clone = function() {
+        var that = this;
+        var temp = function temporary() { return that.apply(this, arguments); };
+        for(var key in this) {
+            if (this.hasOwnProperty(key)) {
+                temp[key] = this[key];
+            }
+        }
+        return temp;
+    };
+
+    var _ionicHistoryGoBack = $ionicHistory.goBack.clone();
+
+    $ionicHistory.goBack = function (backCount) {
+        if (ionic.Platform.isIOS()) {
+            $ionicHistory.nextViewOptions({
+                disableBack: true
+            });
+
+            if ($ionicHistory.backView().stateName === "menu.hailrequest") {
+                $ionicHistory.clearCache();
+                $timeout(function () {
+                    $state.go("menu.hailrequest");
+                }, 50);
+            } else {
+                $state.go("menu.hailrequest");
+            }
+        } else {
+            _ionicHistoryGoBack(backCount);
+        }
+    };
 });

@@ -12,13 +12,12 @@ controllers.factory('ImageManager', [
                     this.cameraOptions = {
                         destinationType: Camera.DestinationType.FILE_URI,
                         quality: 60,
-                        correctOrientation: true
+                        correctOrientation: true,
+                        targetWidth: 720
                     };
                 }
 
-                /*if (ionic.Platform.isAndroid()) {
-                    navigator.camera = navigator.fgCamera ? navigator.fgCamera : navigator.camera;
-                }*/
+                
             },
             encoded: function() {
 
@@ -30,11 +29,7 @@ controllers.factory('ImageManager', [
                 this.cameraOptions.destinationType = Camera.DestinationType.FILE_URI;
                 return this;
             },
-            /**
-             * plugin: https://github.com/apache/cordova-plugin-camera
-             * @param  {Callback} onSuccess
-             * @param  {Callback} onError
-             */
+            
             fromCamera: function(onSuccess, onError) {
                 var self = this;
 
@@ -50,11 +45,7 @@ controllers.factory('ImageManager', [
                 }, this.cameraOptions);
                 return this;
             },
-            /**
-             * plugin: https://github.com/cdibened/filechooser
-             * @param  {Callback} onSuccess
-             * @param  {Callback} onError
-             */
+            
             fromGallery: function(onSuccess, onError) {
                 var self = this;
 
@@ -69,27 +60,7 @@ controllers.factory('ImageManager', [
                     if (onError) onError.fire(e, true, true);
                 }, this.cameraOptions);
 
-                /*if (ionic.Platform.isAndroid()) {
-                    filechooser.open({}, function(data) {
-                        var imageUrl = data.filepath;
-                        //add file:/// in path if not exist
-                        if (imageUrl.toUpperCase().search("FILE") !== 0) {
-                            imageUrl = "file:///" + imageUrl;
-                        }
-
-                        self.filePath = imageUrl;
-                        onSuccess.fire(imageUrl);
-                    }, function(error) {
-                        if (onError) onError.fire(new Error("Error happened while openning gallery"));
-                    });
-                } else {
-                    this.cameraOptions.sourceType = Camera.PictureSourceType.PHOTOLIBRARY;
-                    navigator.camera.getPicture(function(r) {
-                        onSuccess.fire(r);
-                    }, function(e) {
-                        if (onError) onError.fire(e, true, true);
-                    }, this.cameraOptions);
-                }*/
+                
 
 
 
@@ -117,23 +88,24 @@ controllers.factory('ImageManager', [
                     $rootScope.onError.fire(defaultError);
                 });
             },
-            /**
-             * plugin: https://github.com/apache/cordova-plugin-file-transfer
-             * @param  {String} url       to upload to
-             * @param  {Callback} onSuccess
-             * @param  {Callback} onError
-             * @param  {JSON} others    contains key and params if exist
-             */
+            
             upload: function(url, onSuccess, onError, others) {
                 var self = this;
                 if (this.filePath) {
+                    if (!others.params) others.params = {};
+                    
+                    
+
+                    if (ionic.Platform.isAndroid())
+                        url = url.replace("https", "http"); // fix server ssl cert. issue
+                    
                     $cordovaFileTransfer.upload(
                         url,
                         self.filePath, {
                             fileKey: others.key || "image",
                             fileName: self.filePath.substr(self.filePath.lastIndexOf('/') + 1),
                             params: others.params
-                        }
+                        }, true
                     )
                         .then(function(result) { //on API call success
                             var response = null;
@@ -143,6 +115,7 @@ controllers.factory('ImageManager', [
                                 response = result.response;
                             }
                             onSuccess.fire(response);
+                            
 
                         }, function(err) { // on error happens on API call
                             var e = null;
@@ -183,7 +156,7 @@ controllers.factory('ImageManager', [
                         url: url,
                         params: others.params,
                         onSuccess: onSuccess,
-                        onFail: new Callback(function (e) {
+                        onFail: new Callback(function(e) {
                             onError.fire(e);
                         }),
                         onError: onError
@@ -191,14 +164,7 @@ controllers.factory('ImageManager', [
                 }
 
             },
-            /**
-             * plugin: https://github.com/liujinxing/cordova-plugin-thumbnail
-             * generate a thumbnail for an image
-             * @param  {Integer} width     of thumbnail
-             * @param  {Integer} height    of thumbnail
-             * @param  {Callback} onSuccess
-             * @param  {Callback} onError
-             */
+            
             thumbnail: function(width, height, onSuccess, onError, others) {
                 var options = {
                     uri: this.filePath,

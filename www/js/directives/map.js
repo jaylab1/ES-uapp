@@ -1,7 +1,7 @@
 application.factory('mapEngine', [
     '$rootScope', 'Util',
     function($rootScope, Util) {
-        console.log("make a mapEngine instance");
+
         var mapObject = {
             params: null,
 
@@ -22,6 +22,9 @@ application.factory('mapEngine', [
                     lng: lng
                 };
                 $rootScope.$broadcast('googleMap@Center');
+            },
+            setZoom: function(zoom) {
+                $rootScope.$broadcast('googleMap@SetZoom', zoom);
             },
             pauseWatchMarker: function() {
                 this.params = {
@@ -196,13 +199,17 @@ application.factory('mapEngine', [
                 if (this.gMapsInstance) return this.gMapsInstance.map;
                 return null;
             },
-            addMarker: function(lat, lng, icon) {
+            addMarker: function(lat, lng, icon, id) {
                 this.params = {
                     lat: lat,
                     lng: lng,
-                    icon: icon || null
+                    icon: icon || null,
+                    id: id || null
                 };
                 $rootScope.$broadcast('googleMap@AddMarker');
+            },
+            removeMarker: function(id) {
+                $rootScope.$broadcast('googleMap@RemoveMarker', id);
             },
             addUserAccuracy: function(lat, lng, accuracy, options) {
                 this.params = {
@@ -213,9 +220,18 @@ application.factory('mapEngine', [
                 };
                 $rootScope.$broadcast('googleMap@AddUserAccuracy');
             },
-            resetMap: function () {
+            resetMap: function() {
                 console.log("resetMap");
                 $rootScope.$broadcast('googleMap@resetMap');
+            },
+            infoBubble: function(lat, lng, info) {
+                $rootScope.$broadcast('googleMap@InfoBubble', lat, lng, info);
+            },
+            removeInfoBubble: function() {
+                $rootScope.$broadcast('googleMap@RemoveInfoBubble');
+            },
+            fitMap: function(startLatLng, endLatLng) {
+                $rootScope.$broadcast('googleMap@FitMap', startLatLng, endLatLng);
             }
         };
 
@@ -231,7 +247,9 @@ application.directive('googleMap', [
         var gMaps = null,
             watchMarker = null,
             isWatchingMarker = true,
-            accuracyMarker = null;
+            accuracyMarker = null,
+            infoBubble = null,
+            markers = {};
         return {
             restrict: 'AE',
             replace: true,
@@ -282,6 +300,11 @@ application.directive('googleMap', [
                         mapEngine.accuracyMarker.infoBubble.setMap(null);
                         mapEngine.accuracyMarker = null;
                     }
+                    if (infoBubble) {
+                        infoBubble.close();
+                        infoBubble.setMap(null);
+                        delete infoBubble;
+                    }
                     $rootScope.$broadcast('googleMap@preReady');
                 });
 
@@ -294,6 +317,10 @@ application.directive('googleMap', [
                 $scope.$on('googleMap@Center', function() {
                     var latLng = new google.maps.LatLng(mapEngine.params.lat, mapEngine.params.lng);
                     gMaps.panTo(latLng);
+                });
+
+                $scope.$on('googleMap@SetZoom', function(event, zoom) {
+                    gMaps.setZoom(zoom);
                 });
 
                 $scope.$on('googleMap@WatchMarker', function() {
@@ -323,6 +350,12 @@ application.directive('googleMap', [
                     //gMaps.map.setZoom(14);
                 });
 
+                $scope.$on('googleMap@FitMap', function(event, origin, destination) {
+                    var startLatLng = new google.maps.LatLng(origin.lat(), origin.lng());
+                    var endLatLng = new google.maps.LatLng(destination.lat(), destination.lng());
+                    gMaps.fitLatLngBounds([startLatLng, endLatLng]);
+                });
+
                 $scope.$on('googleMap@OnWatchChange', function() {
                     isWatchingMarker = mapEngine.params.isWatchingMarker;
                 });
@@ -343,21 +376,74 @@ application.directive('googleMap', [
                 });
 
                 $scope.$on('googleMap@AddMarker', function() {
-                    gMaps.addMarker({
-                        lat: mapEngine.params.lat,
-                        lng: mapEngine.params.lng,
-                        icon: mapEngine.params.icon
+
+                    if (mapEngine.params.id && markers[mapEngine.params.id]) {
+                        markers[mapEngine.params.id].setPosition(new google.maps.LatLng(mapEngine.params.lat, mapEngine.params.lng));
+                    } else {
+
+                        var tmpMarker = gMaps.addMarker({
+                            lat: mapEngine.params.lat,
+                            lng: mapEngine.params.lng,
+                            icon: mapEngine.params.icon || null
+                        });
+
+                        if (mapEngine.params.id)
+                            markers[mapEngine.params.id] = tmpMarker;
+                    }
+                });
+
+                $scope.$on('googleMap@RemoveMarker', function(event, id) {
+
+                    if (id && markers[id]) {
+                        gMaps.removeMarker(markers[id]);
+                        markers[id].setMap(null);
+                        delete markers[id];
+                    }
+                });
+
+                $scope.$on('googleMap@InfoBubble', function(event, lat, lng, info) {
+                    if (infoBubble) {
+                        infoBubble.close();
+                        infoBubble.setMap(null);
+                        delete infoBubble;
+                        
+                    }
+
+                    infoBubble = new InfoBubble({
+                        padding: "30px",
+                        map: gMaps.map,
+                        position: new google.maps.LatLng(lat, lng),
+                        content: "<h5 class='abs-middle text-center white' style='overflow: hidden; margin-top: 20%;'>" + info + "</h5>",
+                        backgroundClassName: 'marker-info-time',
+                        backgroundColor: 'transparent',
+                        borderColor: 'transparent',
+                        borderWidth: 0,
+                        arrowSize: 15,
+                        hideCloseButton: true,
+                        borderRadius: 30,
+                        arrowStyle: 0,
+                        shadowStyle: 0,
                     });
+                    infoBubble.open();
+
+
+                    console.log(infoBubble);
+                });
+
+                $scope.$on('googleMap@RemoveInfoBubble', function() {
+                    if (infoBubble) {
+                        console.log(infoBubble);
+                        infoBubble.close();
+                        infoBubble.setMap(null);
+                        delete infoBubble
+                    }
                 });
 
                 $scope.$on('googleMap@AddUserAccuracy', function() {
                     if (accuracyMarker) {
                         gMaps.removeMarker(accuracyMarker.center);
                         gMaps.removeMarker(accuracyMarker.outer);
-                        if (accuracyMarker.infoBubble) {
-                            accuracyMarker.infoBubble.close();
-                            accuracyMarker.infoBubble.setMap(null);
-                        }
+                        
                     }
 
                     accuracyMarker = {};
@@ -389,25 +475,7 @@ application.directive('googleMap', [
                         }
                     });
 
-                    if (mapEngine.params.options.info) {
-                        accuracyMarker.infoBubble = new InfoBubble({
-                            padding: "30px",
-                            map: gMaps.map,
-                            position: new google.maps.LatLng(mapEngine.params.lat, mapEngine.params.lng),
-                            content: "<h5 class='abs-middle text-center white' style='overflow: hidden; margin-top: 20%;'>" + mapEngine.params.options.info + "</h5>",
-                            backgroundClassName: 'marker-info-time',
-                            backgroundColor: 'transparent',
-                            borderColor: 'transparent',
-                            borderWidth: 0,
-                            arrowSize: 15,
-                            hideCloseButton: true,
-                            borderRadius: 30,
-                            arrowStyle: 0,
-                            shadowStyle: 0,
-                        });
-                        accuracyMarker.infoBubble.open();
-                        mapEngine.accuracyMarker = accuracyMarker;
-                    }
+                    
                 });
 
             }

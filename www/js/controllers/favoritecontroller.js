@@ -8,7 +8,6 @@ controllers.controller('FavoriteController@favorties', [
         }), $rootScope.onError);
 
         $scope.onFavoriteTapped = function(favorite, i) {
-            console.log(favorite, i);
             $state.go("menu.addfavorite", {
                 mode: i,
                 favorite: favorite
@@ -27,6 +26,9 @@ controllers.controller('FavoriteController@addfavorite', [
 
         $scope.mode = $stateParams.mode;
         $scope.favorite = $stateParams.favorite;
+        $scope.input = {};
+
+        var googlePlaceSelectEvent = null;
 
         $scope.onSetLocationTapped = function(favorite) {
             var validator = new Validator();
@@ -49,6 +51,16 @@ controllers.controller('FavoriteController@addfavorite', [
 
         var onLocationEnabled = new Callback(function() {
 
+            $scope.$on('$ionicView.leave', function() {
+                if (googlePlaceSelectEvent) googlePlaceSelectEvent();
+            });
+
+            $scope.$on('$ionicView.enter', function() {
+                googlePlaceSelectEvent = $scope.$on("g-places-autocomplete:select", function(event, place) {
+                    $scope.onAddressSelected(place);
+                });
+            });
+
             $scope.myLocationTapped = function() {
                 User.getInstance().findPosition(new Callback(function(position) {
                     mapEngine.addUserAccuracy(position.lat(), position.lng(), position.accuracy);
@@ -59,8 +71,7 @@ controllers.controller('FavoriteController@addfavorite', [
             mapEngine.navigationMarker(function() {});
 
             User.getInstance().findPosition(new Callback(function(position) {
-                mapEngine.addUserAccuracy(position.lat(), position.lng(), position.accuracy);
-                mapEngine.setCenter(position.lat(), position.lng());
+                
 
                 mapEngine.gMapsInstance.on("dragend", function() {
 
@@ -68,13 +79,14 @@ controllers.controller('FavoriteController@addfavorite', [
 
                     $rootScope.onProgress.fire();
                     var locationLatLng = mapEngine.getCenter();
-                    g.latlngToAddress(locationLatLng, new Callback(function(address) {
+                    g.latlngToAddress(locationLatLng, new Callback(function(address, place) {
 
                         if (address.toUpperCase().indexOf("UNNAMED") > -1)
                             address = "No street name";
 
                         $scope.favorite.address = address;
                         $scope.favorite.location = locationLatLng;
+                        $scope.input.place = place; // bind to input to show on the view
 
                         $rootScope.onProgressDone.fire();
                         $scope.$apply();
@@ -101,6 +113,10 @@ controllers.controller('FavoriteController@addfavorite', [
                 mapEngine.getMap().setCenter(place.geometry.location);
             }
             mapEngine.getMap().setZoom(17);
+            console.log(place);
+
+            $scope.favorite.location = place.geometry.location;
+            $scope.favorite.address = place.formatted_address;
         };
 
         $scope.$on('$destroy', function() {

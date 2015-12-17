@@ -4,9 +4,11 @@
 
 input[disabled] {
     background-color: inherit;
+    font-weight: 500;
 }
 
 input[disabled]::-webkit-input-placeholder {
+    background-color: inherit;
     font-weight: 500;
 }
 
@@ -84,6 +86,10 @@ input[disabled]::-webkit-input-placeholder {
 
 .text-left {
     text-align: left;
+}
+
+.text-right {
+    text-align: right;
 }
 
 .arrow-down {
@@ -203,6 +209,10 @@ input[disabled]::-webkit-input-placeholder {
     bottom: 0;
 }
 
+.bottom.has-footer {
+    bottom: 50px;
+}
+
 .width-full {
     width: 100%;
 }
@@ -216,13 +226,17 @@ input[disabled]::-webkit-input-placeholder {
 }
 
 .title img {
-    height: 45%;
+    /*height: 45%;
     margin: auto;
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 0;*/
+    margin-top: 10px;
+    width: auto;
+    height: 20px;
+    max-width: 100%;
 }
 
 .circle-frame {
@@ -272,12 +286,20 @@ input[disabled]::-webkit-input-placeholder {
     border-radius: 0 !important;
 }
 
-.locateme-btn.button .icon:before,
+
+/*.locateme-btn.button .icon:before,
 .locateme-btn.button.icon:before,
 .locateme-btn.button.icon-left:before,
 .locateme-btn.button.icon-right:before {
     margin-top: 4px;
     margin-right: 2px;
+}*/
+
+.locateme-btn {
+    position: absolute;
+    bottom: 85px;
+    right: 5px;
+    z-index: 99;
 }
 
 
@@ -355,13 +377,22 @@ ul.rating li i {
  */
 
 .login .legend {
-    margin-top: 40% !important;
+    margin-top: 10% !important;
     margin-bottom: 5% !important;
     text-align: center !important;
 }
 
 .login .a-input {
     width: 80%;
+}
+
+.noaccount {
+    font-size: 0.9em;
+}
+
+.noaccount span {
+    font-size: 1.1em !important;
+    font-weight: 700;
 }
 
 
@@ -395,16 +426,19 @@ ul.rating li i {
  * confirm popup
  */
 
-.eserviss-confirm .popup {
+.eserviss-confirm .popup,
+.eserviss-alert .popup {
     background-color: transparent !important;
     width: 90%;
 }
 
-.eserviss-confirm .popup-head {
+.eserviss-confirm .popup-head,
+.eserviss-alert .popup-head {
     display: none;
 }
 
-.eserviss-confirm .popup-body {
+.eserviss-confirm .popup-body,
+.eserviss-alert .popup-body {
     background-color: #F7F7F7;
     padding: 30px 10px;
     position: relative;
@@ -443,14 +477,42 @@ ul.rating li i {
     margin-right: 10px;
 }
 
-.eserviss-confirm .popup-buttons {
+.eserviss-confirm .popup-buttons,
+.eserviss-alert .popup-buttons {
     display: none;
 }
 
-.eserviss-confirm .popup .popup-body .close {
+.eserviss-confirm .popup .popup-body .close,
+.eserviss-alert .popup .popup-body .close {
     position: absolute;
     top: 0;
-    right: 0;
+    right: 10px;
+}
+
+.eserviss-confirm .popup .popup-body .close .button-icon,
+.eserviss-alert .popup .popup-body .close .button-icon {
+    color: #333333;
+}
+
+.eserviss-confirm .popup .popup-body .close.ads .button-icon,
+.eserviss-alert .popup .popup-body .close.ads .button-icon {
+    color: #EFEFEF;
+}
+
+.eserviss-alert.eserviss-ads {
+    border: 1px solid #EEEEEE;
+}
+
+.eserviss-alert.eserviss-ads.has-img .popup-body {
+    padding: 0;
+}
+
+.eserviss-alert.eserviss-ads .popup-body img {
+    margin-bottom: -6px;
+}
+
+.eserviss-alert.eserviss-ads p {
+    margin: 35px 10px 30px 10px;
 }
 
 
@@ -493,22 +555,36 @@ ul.rating li i {
 
 .mode-border {
     display: block;
-    width: 60%;
+    width: 80%;
+    /*60%*/
     border-bottom: 3px solid #DDDDDD;
     position: absolute;
     margin: 0 auto;
-    top: 45px;
+    top: 50%;
+    /*45px*/
     left: 0;
     right: 0;
     z-index: -1;
+}
+
+.mode-border.width-2 {
+    width: 50%;
+}
+
+.mode-border.width-3 {
+    width: 70%;
+}
+
+.mode-border.width-4 {
+    width: 78%;
 }
 
 #mode-select h6 {
     margin-bottom: 0;
 }
 
-#mode-select h6.taxi {
-    padding-right: 2px;
+#mode-select h6.TAXI, #mode-select h6.Taxi, #mode-select h6.taxi {
+    padding-right: 4px;
 }
 
 #mode-select .dragdealer {
@@ -517,7 +593,7 @@ ul.rating li i {
 
 #mode-select .controller {
     position: absolute;
-    width: 33%;
+    /*width: 25%;*/
     padding: 5px;
 }
 
@@ -560,6 +636,12 @@ ul.rating li i {
     font-size: 25px;
 }
 
+#hailrequest .hailrequest {
+    background: url(../img/map.jpg) center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
 #hailrequest .meetingpoint {
     padding: 2px;
     background-color: rgba(255, 180, 6, 0.8);
@@ -586,6 +668,18 @@ ul.rating li i {
 
 #hailrequest .get-estimation .button-block {
     font-size: 1.6em;
+}
+
+#hailrequest .mode-active {
+    color: #FFB300;
+}
+
+#hailrequest .mode-active.FREE {
+    color: #FE0501;
+}
+
+#hailrequest .mode-inactive {
+    color: #BDBDBD;
 }
 
 .pac-container {
@@ -694,6 +788,10 @@ input.ion-google-place[readonly] {
  * hail request alert
  */
 
+.popup-body {
+    overflow: hidden;
+}
+
 .eserviss-confirm.hailrequest .popup .popup-body {
     background-color: #FFB300;
     text-align: center;
@@ -713,15 +811,17 @@ input.ion-google-place[readonly] {
     border-radius: 50px;
     height: 50px;
     max-height: 50px;
+    line-height: 70px;
     width: 50px;
+    text-align: center;
     display: inline-block;
     overflow: hidden;
     font-size: 9px;
-    font-weight: 600;
     position: relative;
 }
 
-#profile .picture .button-circle span {
+
+/*#profile .picture .button-circle span {
     line-height: normal;
     position: absolute;
     top: 0;
@@ -731,13 +831,25 @@ input.ion-google-place[readonly] {
     margin: auto;
     display: inline-block;
     height: 20px;
+}*/
+
+#profile .picture .button-circle span {
+    /*font-size: 12px;*/
+    vertical-align: middle;
+    line-height: normal;
+    display: inline-block;
+    font-weight: 700;
 }
 
 #profile .picture .button-circle.camera {
+    height: 70px;
+    max-height: 70px;
+    width: 70px;
     background-color: #DEDEDE;
     color: #838383;
     border: 1px solid #DEDEDE;
     right: -10px;
+    font-size: 11px;
 }
 
 #profile .picture .pp {
@@ -825,12 +937,12 @@ input.ion-google-place[readonly] {
 }
 
 #request-confirmed .info .top-info .status {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 10px;
-    /*right: 0;*/
-    margin: auto;
+    padding-left: 10px;
+}
+
+#request-confirmed .info .top-info .status h4 {
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 #request-confirmed .info .top-info .status img {
@@ -845,6 +957,16 @@ input.ion-google-place[readonly] {
 #request-confirmed .info .up {
     position: relative;
     bottom: 15px;
+}
+
+#request-confirmed .info .btn-contact {
+    position: absolute;
+    right: 0;
+    height: 50px;
+}
+
+#request-confirmed .info .btn-cancel {
+    bottom: 10px;
 }
 
 #request-confirmed .label {
@@ -882,6 +1004,20 @@ input.ion-google-place[readonly] {
     right: 0 !important;
 }
 
+#request-confirmed .dropoffaddress {
+    z-index: 10;
+    background: #FFFFFF;
+    position: absolute;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+}
+
+#request-confirmed .dropoffaddress p {
+    padding: 0;
+    margin: 0;
+}
+
 .ib-content-ctr {
     background: url(../img/icons/pin-info-bg.png);
     background-size: contain;
@@ -894,30 +1030,70 @@ input.ion-google-place[readonly] {
  * Receipt screen
  */
 
+#freereceipt .container,
 #receipt .container {
     width: 90%;
     margin: 0 auto;
 }
 
+#freereceipt .receipt,
 #receipt .container .receipt {
     padding: 30px 0;
     border-bottom: 5px solid #000000;
 }
 
+#freereceipt .receipt .cost,
 #receipt .container .receipt .cost {
     display: inline-block;
-    background-color: white;
+    /*background-color: white;*/
     font-size: 2em;
     color: #ACACAC;
     margin-top: 10px;
 }
 
+#freereceipt .rating-ctr,
 #receipt .container .rating-ctr {
     margin-top: 20px;
 }
 
+#freereceipt .rating-ctr .rating,
 #receipt .container .rating-ctr .rating {
     margin-bottom: 30px;
+}
+
+
+/**
+ * free receipt screen
+ */
+
+#freereceipt .receipt {
+    border-bottom-width: 0;
+}
+
+#freereceipt .container {
+    border-top: 5px solid #000000;
+}
+
+#freereceipt .receipt .cost {
+    font-size: 1.25em;
+}
+
+#freereceipt .promotion {
+    margin-bottom: 5px;
+}
+
+#freereceipt .result {
+    border-top: 1px dashed #DDDDDD;
+}
+
+#freereceipt .cost.free {
+    color: red !important;
+    font-size: 1.75em !important;
+}
+
+#freereceipt .cost.total {
+    font-size: 1.75em !important;
+    color: #000000 !important;
 }
 
 
@@ -1165,4 +1341,25 @@ input.ion-google-place[readonly] {
 
 .input-error {
     border: 1px solid red !important;
+}
+
+/**
+ * splash page
+ */
+#splash img {
+    max-width: 100%;
+    max-height: 100%;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    overflow: auto;
+    position: fixed;
+    right: 0;
+    top: 0;
+}
+
+#splash .bg-splash {
+    background: url(../img/splashscreen.jpg) center center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }

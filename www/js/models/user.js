@@ -8,10 +8,7 @@ application.factory('User', [
         'use strict';
 
         var User = augment(Model, function(parent) {
-            /**
-             * User Constructor
-             * @param  {row} resulted row from select statement
-             */
+            
             this.constructor = function(row) {
                 this._fields = ["email", "password", "firstName", "lastName", "gender", "mobile", "country", "stripeCustomerId", "stripeCardId", "profilePicture"];
                 this._tableName = "User";
@@ -22,15 +19,19 @@ application.factory('User', [
                 this.pingActions = [];
                 this.pingInterval = null;
                 this.nearbyActionIndex = null;
+
+                this.onNearbyCarsFound = null;
             };
 
             this.findPosition = function(onSuccess, onError) {
                 var self = this;
                 var g = new Geolocation();
-                g.findPosition(new Callback(function (position) {
-                    self.position = position;
-                    onSuccess.fire(position);
-                }), onError);
+                g.findPosition(new Callback(function(position) {
+                        self.position = position;
+                        onSuccess.fire(position);
+                    }), onError
+                    
+                );
             };
 
             this.findShare = function(onSuccess, onError) {
@@ -70,29 +71,44 @@ application.factory('User', [
             this.signin = function(onSuccess, onInactiveMobile, onError) {
                 var self = this;
 
-                var http = new Http();
-                http.get({
-                    url: CONFIG.SERVER.URL,
-                    model: User,
-                    params: {
-                        signin: true,
-                        email: self.email,
-                        password: User.PrepareSecurityToken(self.password) //self.password
-                    },
-                    onSuccess: new Callback(function(user) {
-                        user.password = self.password;
-                        User.SharedInstance = user;
-                        User.SetSecurityToken(self.password);
-                        onSuccess.fire(user);
-                    }),
-                    onFail: new Callback(function(e, status, result) {
-                        if (status === "INACTIVE_MOBILE") {
-                            if (onInactiveMobile) onInactiveMobile.fire(result);
-                        } else {
-                            onError.fire(e);
-                        }
-                    }),
-                    onError: onError
+                var onUiniqueIdFound = function(uId) {
+                    
+                    var http = new Http();
+                    http.get({
+                        url: CONFIG.SERVER.URL,
+                        model: User,
+                        params: {
+                            signin: true,
+                            email: self.email,
+                            password: User.PrepareSecurityToken(self.password), //self.password
+                            uid: uId
+                        },
+                        onSuccess: new Callback(function(user) {
+                            user.password = self.password;
+                            User.SharedInstance = user;
+                            User.SetSecurityToken(self.password);
+                            onSuccess.fire(user);
+                        }),
+                        onFail: new Callback(function(e, status, result) {
+                            if (status === "INACTIVE_MOBILE") {
+                                if (onInactiveMobile) onInactiveMobile.fire(result);
+                            } else {
+                                onError.fire(e);
+                            }
+                        }),
+                        onError: onError
+                    });
+                };
+
+
+
+                if (Util.IsBrowser()) {
+                    onUiniqueIdFound(Util.RandomString(32));
+                    return;
+                }
+
+                plugins.uniqueDeviceID.get(onUiniqueIdFound, function() {
+                    onError.fire(new Error("Can't find the device id, please try again later!", true, true));
                 });
             };
 
@@ -101,10 +117,21 @@ application.factory('User', [
 
                 var hashedPassword = new Hashes.MD5().hex(self.password);
                 var onUiniqueIdFound = function(uId) {
+                    var salt = CryptoJS.lib.WordArray.random(256 / 8).toString();
+                    var hash = CryptoJS.PBKDF2(self.password, salt, {
+                        keySize: 256 / 32,
+                        iterations: 22 //this is the iterations of crypto, this can only be set once, if you change it for any reason, all users authentications will fail.
+                    });
+                    hash = CryptoJS.SHA512(hash);
                     var http = new Http();
                     http.get({
                         url: CONFIG.SERVER.URL,
                         model: User,
+                        headers: {
+                            AUTH_EMAIL: self.email,
+                            AUTH_SALT: salt,
+                            AUTH_HASH: hash
+                        },
                         params: {
                             signup: true,
                             firstName: self.firstName,
@@ -133,8 +160,10 @@ application.factory('User', [
                     });
                 };
 
-                /*onUiniqueIdFound(Util.RandomString(32));
-                return;*/
+                if (Util.IsBrowser()) {
+                    onUiniqueIdFound(Util.RandomString(32));
+                    return;
+                }
 
                 plugins.uniqueDeviceID.get(onUiniqueIdFound, function() {
                     onError.fire(new Error("Can't find the device id, please try again later!", true, true));
@@ -149,7 +178,7 @@ application.factory('User', [
                 var startPinging = function() {
                     self.pingInterval = $interval(function() {
                         for (var i = 0; i < self.pingActions.length; i++) {
-                            self.pingActions[i]();
+                            if (self.pingActions[i]) self.pingActions[i]();
                         }
                     }, Settings.getInstance().server_rate * 1000);
                 };
@@ -201,19 +230,14 @@ application.factory('User', [
 
                         var buildRequest = function(tripSync) {
                             var request = new HailRequest(tripSync);
-                            /*var request = new HailRequest({
-                                id: tripSync.ride_id
-                            });
-                            request.pickupLocation = tripSync.pickupLocation;
-                            request.pickupAddress = tripSync.pickup_address;
-                            request.dropoffLocation = tripSync.dropoffLocation;
-                            request.dropoffAddress = tripSync.dropoff_address;
-                            request.setMode(tripSync.mode);
-                            request.passengers = tripSync.passengers;*/
+                            
                             return request;
                         };
 
-                        /*var sync = syncArray[0];*/
+                        
+
+                        //unlock app
+                        localStorage.removeItem(HailRequest.HAIL_LOCK);
 
                         if (sync.dropoff.trim().length !== 0 || sync.noservice.trim().length !== 0 || sync.cancel_by_driver.trim().length !== 0 || sync.cancel.trim().length !== 0) {
                             onFail.fire();
@@ -274,7 +298,7 @@ application.factory('User', [
                 });
             };
 
-            this.forgotPasswordSendSms = function (onSuccess, onError) {
+            this.forgotPasswordSendSms = function(onSuccess, onError) {
                 var self = this;
                 var http = new Http();
                 http.get({
@@ -289,7 +313,7 @@ application.factory('User', [
                 });
             };
 
-            this.forgotPasswordValidateMobile = function (code, onSuccess, onError) {
+            this.forgotPasswordValidateMobile = function(code, onSuccess, onError) {
                 var self = this;
                 var smsHashedCode = new Hashes.MD5().hex(code);
                 var http = new Http();
@@ -298,7 +322,7 @@ application.factory('User', [
                     params: {
                         validate_forgot_password: true,
                         phone: this.mobile,
-                        val: smsHashedCode 
+                        val: smsHashedCode
                     },
                     onSuccess: onSuccess,
                     onFail: onError,
@@ -306,7 +330,7 @@ application.factory('User', [
                 });
             };
 
-            this.forgotPasswordReset = function (onSuccess, onError) {
+            this.forgotPasswordReset = function(onSuccess, onError) {
                 var self = this;
 
                 var passwordHashed = new Hashes.MD5().hex(this.password);
@@ -393,7 +417,7 @@ application.factory('User', [
                         if (result.id) {
                             self.stripeCardId = result.id;
                             requestMotivationMessage();
-                            /*onSuccess.fire(self.stripeCardId);*/
+                            
                         } else if (result.error) {
                             onError.fire(new Error(result.error.message));
                         } else {
@@ -450,11 +474,7 @@ application.factory('User', [
                     self.createCreditCard(credit, onSuccess, onError);
 
                     //check if there is no credit card
-                    /*if (self.stripeCardId === null || self.stripeCardId.length === 0 || self.stripeCardId === "0") {
-                        self.createCreditCard(credit, onSuccess, onError);
-                    } else {
-                        self.editCreditCard(credit, onSuccess, onError)
-                    }*/
+                    
                 });
 
                 //if there is no customer create a new one
@@ -473,7 +493,7 @@ application.factory('User', [
                         'add-credit': true,
                         type: 'cash',
                         credit: amount,
-                        userId: self.id
+                        userId: this.id
                     },
                     onSuccess: onSuccess,
                     onFail: onError,
@@ -519,24 +539,7 @@ application.factory('User', [
             this.recharge = function(amount, onSuccess, onError) {
                 var self = this;
 
-                /*var requestAddCredit = function() {
-                    var http = new Http();
-                    http.get({
-                        url: CONFIG.SERVER.URL,
-                        params: {
-                            'add-credit': true,
-                            type: 'cash',
-                            credit: (amount / 100),
-                            userId: self.id
-                        },
-                        onSuccess: new Callback(function() {
-                            onSuccess.fire();
-                            self.credit += (amount / 100).toFixed(2);
-                        }),
-                        onFail: onError,
-                        onError: onError
-                    });
-                };*/
+                
 
                 stripe.charges.create({
                         amount: amount,
@@ -550,7 +553,7 @@ application.factory('User', [
                                 self.credit += (amount / 100).toFixed(2);
                                 onSuccess.fire();
                             }), onError);
-                            /*requestAddCredit();*/
+                            
                         } else if (result.error) {
                             onError.fire(new Error(result.error.message));
                         } else {
@@ -570,10 +573,12 @@ application.factory('User', [
                         userId: this.id,
                     },
                     onSuccess: new Callback(function(r) {
-                        if (!r) 
+                        if (!r)
                             self.credit = 0;
-                        else
+                        else {
                             self.credit = r[0];
+                            self.credit.cash = parseFloat(self.credit.cash);
+                        }
                         onSuccess.fire(self.credit);
                     }),
                     onFail: onError,
@@ -597,7 +602,8 @@ application.factory('User', [
                         userId: this.id,
                     },
                     onSuccess: new Callback(function(r) {
-                        onSuccess.fire(r[0]);
+                        var blackListResult = r && r.length > 0 ? r[0] : null;
+                        onSuccess.fire(blackListResult);
                     }),
                     onFail: onError,
                     onError: onError
@@ -608,9 +614,39 @@ application.factory('User', [
                 return localStorageService.set(User.STORAGE_KEY, this.toJson());
             };
 
-            this.logout = function() {
-                localStorageService.remove(User.STORAGE_KEY);
-                $interval.cancel(this.pingInterval);
+            this.logout = function(onSuccess, onError) {
+                var self = this;
+
+                var onUiniqueIdFound = function(uId) {
+                    var http = new Http();
+                    http.get({
+                        url: CONFIG.SERVER.URL,
+                        params: {
+                            signout: true,
+                            userId: self.id,
+                            uid: uId
+                        },
+                        onSuccess: new Callback(function(r) {
+                            localStorageService.remove(User.STORAGE_KEY);
+                            $interval.cancel(self.pingInterval);
+                            User.SharedInstance = null;
+                            onSuccess.fire();
+                        }),
+                        onFail: onError,
+                        onError: onError
+                    });
+                };
+
+
+
+                if (Util.IsBrowser()) {
+                    onUiniqueIdFound(Util.RandomString(32));
+                    return;
+                }
+
+                plugins.uniqueDeviceID.get(onUiniqueIdFound, function() {
+                    onError.fire(new Error("Can't find the device id, please try again later!", true, true));
+                });
             };
 
             this.isStripeCustomerCreated = function() {
@@ -622,33 +658,55 @@ application.factory('User', [
                 return true;
             };
 
-            this.findNearbyCars = function(mode, onSuccess, onError) {
+            this.findNearbyCars = function(mode, pinLocation, onSuccess, onError) {
                 var self = this;
+                var http = new Http();
+                http.isLoading = false;
+
+                var onNearbyCarsRequestSuccess = new Callback(function(r) {
+                    
+                    if (self.onNearbyCarsFound) self.onNearbyCarsFound.fire(r);
+                });
+
+                self.nearbyMode = mode;
+
+                var onPositionFound = new Callback(function(position) {
+
+                    http.get({
+                        url: CONFIG.SERVER.URL,
+                        params: {
+                            'nearby_cars': true,
+                            lat: position.lat(),
+                            lng: position.lng(),
+                            tripType: self.nearbyMode.id,
+                            userId: self.id
+                        },
+                        onSuccess: onNearbyCarsRequestSuccess,
+                        onFail: onError,
+                        onError: onError
+                    });
+
+                });
 
                 var makeHttpRequest = function() {
-                    self.findPosition(new Callback(function(position) {
+                    if (Settings.getInstance().nearby_thread.toUpperCase() !== "YES")
+                        return;
 
-                        var http = new Http();
-                        http.isLoading = false;
-                        http.get({
-                            url: CONFIG.SERVER.URL,
-                            params: {
-                                'nearby_cars': true,
-                                lat: position.lat(),
-                                lng: position.lng(),
-                                tripType: mode.id
-                            },
-                            onSuccess: onSuccess,
-                            onFail: onError,
-                            onError: onError
-                        });
-                    }))
+                    if (pinLocation)
+                        onPositionFound.fire(pinLocation);
+                    else
+                        self.findPosition(onPositionFound);
                 };
 
-                if (this.nearbyActionIndex === null)
-                    this.nearbyActionIndex = this.pingActions.push(makeHttpRequest) - 1;
-                else
-                    this.pingActions[this.nearbyActionIndex] = makeHttpRequest;
+                if (this.nearbyActionIndex === null) {
+                    this.pingActions.push(makeHttpRequest);
+                    this.nearbyActionIndex = this.pingActions.length - 1;
+                } else {
+                    delete this.pingActions[this.nearbyActionIndex];
+                    this.pingActions.push(makeHttpRequest);
+                    this.nearbyActionIndex = this.pingActions.length - 1;
+                }
+
             };
         });
 
@@ -660,33 +718,34 @@ application.factory('User', [
             return user !== null;
         };
 
-        User.ToAuthToken = function (code) {
+        User.ToAuthToken = function(code) {
             var tokenMd5 = new Hashes.MD5().hex(code);
             return tokenMd5;
         };
 
 
         User.TOKEN_KEY = "TOKEN_KEY";
-        User.PrepareSecurityToken = function (password) {
-            var smsToken = localStorageService.get(User.SMS_TOKEN_KEY);
+        User.PrepareSecurityToken = function(password) {
+            var smsToken = localStorageService.get(User.SMS_TOKEN_KEY) || "asdasdksd32429fwdwjdfdf9222ssq332";
             var hashedPassword = new Hashes.MD5().hex(password);
             var contanenatedCode = smsToken + hashedPassword;
-            var token = new Hashes.MD5().hex(contanenatedCode);
 
+            var token = new Hashes.MD5().hex(contanenatedCode);
+            
             return token;
         };
 
-        User.SetSecurityToken = function (password) {
+        User.SetSecurityToken = function(password) {
             localStorageService.set(User.TOKEN_KEY, User.PrepareSecurityToken(password));
             return this;
         };
 
-        User.GetSecurityToken = function () {
+        User.GetSecurityToken = function() {
             return localStorageService.get(User.TOKEN_KEY);
         };
 
         User.SMS_TOKEN_KEY = "SMS_TOKEN_KEY";
-        User.SetSecuritySmsToken = function (smsCode) {
+        User.SetSecuritySmsToken = function(smsCode) {
             var hashedSmsCode = new Hashes.MD5().hex(smsCode);
             localStorageService.set(User.SMS_TOKEN_KEY, hashedSmsCode);
             return this;
@@ -708,10 +767,10 @@ application.factory('User', [
                         "sound": true,
                         "alert": true,
                     }).then(function(deviceToken) {
-                        /*Util.Alert(deviceToken);*/
+                        
                         User.getInstance().registerPushNotification(deviceToken);
                     }, function(err) {
-                        /*Util.Alert(err);*/
+                        
                     });
                 }
 

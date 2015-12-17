@@ -30,14 +30,14 @@
                         <button class="button button-icon icon ion-plus" ng-click="onRequestPlusTapped()"></button>
                     </div>
                 </div>
-                <label class="item item-input row" ng-show="requestState > REQUEST_STATE.HAIL">
+                <label class="item item-input row" ng-if="requestState != REQUEST_STATE.REQUEST_CAB" ng-show="requestState > REQUEST_STATE.HAIL">
                     <div class="col col-20 no-margin text-center">
                         <img ng-src="img/icons/pickup.png" class="icon">
                     </div>
                     <div class="col border" ng-if="requestState != REQUEST_STATE.REQUEST_CAB">
 
                         <!-- <ion-google-place placeholder="Enter pickup address" ng-model="request.pickupAddress" country="LB" on-selected="onPickupLocationSelected(location)" ng-disabled="requestState > REQUEST_STATE.PICKUP" /> -->
-                        <input type="text" placeholder="Enter Address" g-places-autocomplete ng-model="place" options="{componentRestrictions: { country: 'lb' }}" ng-disabled="requestState > REQUEST_STATE.PICKUP" />
+                        <input type="text" placeholder="Enter Address" g-places-autocomplete ng-model="input.pickup" options="{componentRestrictions: { country: 'lb' }}" ng-disabled="requestState > REQUEST_STATE.PICKUP" />
 
                         
 
@@ -50,35 +50,57 @@
                     </div>
 
                 </label>
+
+                <label class="item item-text row" ng-if="requestState == REQUEST_STATE.REQUEST_CAB" ng-show="requestState > REQUEST_STATE.HAIL" ng-click="onPickupTapped()">
+                    <div class="col col-20 no-margin text-center">
+                        <img ng-src="img/icons/pickup.png" class="icon">
+                    </div>
+
+                    <div class="col border" style="line-height: 35px;">
+
+                        {{request.pickupAddress}}
+
+                    </div>
+
+                </label>
+
                 <label class="item item-input row" ng-show="requestState > REQUEST_STATE.PICKUP">
                     <div class="col col-20 no-padding no-margin text-center">
                         <img ng-src="img/icons/pickup.png" class="icon">
                     </div>
                     <div class="col">
                         <!-- <ion-google-place placeholder="Enter dropoff address" ng-model="request.dropoffAddress" country="LB" on-selected="onDropoffLocationSelected(location)" ng-disabled="requestState > REQUEST_STATE.DROPOFF" /> -->
-                        <input type="text" placeholder="Enter Address" g-places-autocomplete ng-model="place" options="{componentRestrictions: { country: 'lb' }}" ng-disabled="requestState > REQUEST_STATE.DROPOFF" />
+                        <input type="text" placeholder="Enter Address" g-places-autocomplete ng-model="input.dropoff" options="{componentRestrictions: { country: 'lb' }}" ng-disabled="requestState > REQUEST_STATE.DROPOFF" />
                     </div>
                 </label>
             </div>
         </div>
         <google-map></google-map>
     </ion-content>
-    <div ng-hide="requestState === REQUEST_STATE.REQUEST_CAB" class="bottom width-full z mode-select">
-        <div class="row">
+    <button class="button button-clear button-energized bg-yellow black no-border no-radius locateme-btn" ng-click="myLocationTapped()">
+        <i class="icon ion-navigate"></i>
+    </button>
+    <div ng-hide="requestState >= REQUEST_STATE.FARE_ESTIMATION" class="bottom width-full z mode-select">
+        <!-- <div class="row">
             <div class="col">
                 <button class="button button-clear button-energized bg-yellow black no-border no-radius float-right locateme-btn" ng-click="myLocationTapped()">
                     <i class="icon ion-navigate"></i>
                 </button>
             </div>
-        </div>
-        <div class="bg-content row no-padding dragdealer relative z-bottom" ng-switch on="step" id="mode-select">
-            <div class="text-center controller handle">
+        </div> -->
+        <div class="bg-content row no-padding dragdealer relative z-bottom" id="mode-select">
+            <div class="text-center controller handle" style="width: {{100/modes.length}}%">
                 <h6 class="grey b">&nbsp</h6>
-                <img ng-src="img/icons/mode-serviss.png" ng-switch-when="1" ng-click="openPopover($event)">
-                <img ng-src="img/icons/mode-serviss-plus.png" ng-switch-when="2" ng-click="openPopover($event)">
-                <img ng-src="img/icons/mode-taxi.png" ng-switch-when="3" ng-click="openPopover($event)">
+                <img ng-src="img/icons/mode-off.png" id="mode-active-icon" ng-click="openPopover($event)">
+                <!-- <img ng-src="{{request.mode.icon || 'img/icons/mode-serviss.png'}}" ng-switch-when="1" ng-click="openPopover($event)">
+                <img ng-src="{{request.mode.icon || 'img/icons/mode-serviss-plus.png'}}" ng-switch-when="2" ng-click="openPopover($event)">
+                <img ng-src="{{request.mode.icon || 'img/icons/mode-taxi.png'}}" ng-switch-when="3" ng-click="openPopover($event)"> -->
             </div>
-            <div class="text-center col">
+            <div class="text-center col" ng-repeat="mode in modes">
+                <h6 class="b {{mode.name}}" ng-class="{'mode-active': mode.id == request.mode.id, 'mode-inactive': mode.id != request.mode.id}">{{mode.name}}</h6>
+                <img ng-src="img/icons/mode-off.png">
+            </div>
+            <!-- <div class="text-center col">
                 <h6 class="b" ng-class="{'yellow': step == 1, 'grey': step != 1}">SERVISS</h6>
                 <img ng-src="img/icons/mode-off.png">
             </div>
@@ -89,11 +111,11 @@
             <div class="text-center col">
                 <h6 class="b taxi" ng-class="{'yellow': step == 3, 'grey': step != 3}">TAXI</h6>
                 <img ng-src="img/icons/mode-off.png">
-            </div>
-            <div class="mode-border"></div>
+            </div> -->
+            <div class="mode-border" ng-class="{'width-2': modes.length==2, 'width-3': modes.length==3, 'width-4': modes.length==4}"></div>
         </div>
     </div>
-    <div ng-show="requestState === REQUEST_STATE.REQUEST_CAB" class="bottom width-full z bg-white get-estimation">
+    <div ng-show="requestState === REQUEST_STATE.FARE_ESTIMATION" class="bottom width-full z bg-white get-estimation">
         <button class="button button-block button-energized button-clear b" ui-sref="menu.estimationfee({request: request})"> 
             GET FAIR ESTIMATE
         </button>
@@ -103,12 +125,6 @@
     <ion-popover-view class="mode-info">
         <ion-content>
             <div class="list">
-                <div class="item black b">
-                    ETA TIME
-                    <span class="item-note black b">
-                      {{request.mode.etaTime || 5}}MIN
-                    </span>
-                </div>
                 <div class="item black b">
                     MINIMUM FARE
                     <span class="item-note black b">

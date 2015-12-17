@@ -214,14 +214,13 @@ angular.module('google.places', [])
 
                     function format(modelValue) {
                         var viewValue = "";
-                        console.log("format", modelValue);
                         if (isString(modelValue)) {
                             viewValue = modelValue;
                         } else if (isObject(modelValue)) {
-                            if (modelValue.formatted_address.toUpperCase().search(modelValue.name.toUpperCase()) !== -1)
-                                viewValue = modelValue.formatted_address;
-                            else
+                            if (modelValue.name && modelValue.formatted_address.toUpperCase().search(modelValue.name.toUpperCase()) === -1)
                                 viewValue = modelValue.name + ": " + modelValue.formatted_address;
+                            else
+                                viewValue = modelValue.formatted_address;
                         }
 
                         return viewValue;

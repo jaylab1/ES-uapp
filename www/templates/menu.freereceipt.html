@@ -1,0 +1,51 @@
+<ion-view id="freereceipt">
+    <ion-content class="bg-content text-center">
+        <h5>{{creditAction}}</h5>
+        <div class="receipt">
+            <h3 class="yellow b">{{date.day}}<sup>th</sup> {{date.month}} {{date.year}}</h3>
+            <div class="row">
+                <div class="col col-75 text-right">
+                    <span class="cost">TAXI RIDE</span>
+                </div>
+                <div class="col col-offset-10 text-left">
+                    <span class="cost">${{totalCost}}</span>
+                </div>
+            </div>
+            <div class="row promotion">
+                <div class="col col-75 text-right">
+                    <span class="cost">PROMO DISCOUNT</span>
+                </div>
+                <div class="col col-offset-10 text-left">
+                    <span class="cost">-${{totalCost}}</span>
+                </div>
+            </div>
+            <div class="row result">
+                <div class="col col-75 text-right">
+                    <span class="cost free">FREE</span>
+                </div>
+                <div class="col col-offset-10 text-left">
+                    <span class="cost total">$0</span>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <h4>We hope you enjoyed the FREE Ride! Please take a minute to <span class="yellow">review our app.</span> Did you like our app concept?</h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <button class="button button-block button-dark bg-black b" ng-click="onCancelTapped()">
+                        NO
+                    </button>
+                </div>
+                <div class="col">
+                    <button class="button button-block button-energized bg-yellow black b" ng-click="onReviewTapped()">
+                        YES
+                    </button>
+                </div>
+            </div>
+        </div>
+    </ion-content>
+</ion-view>

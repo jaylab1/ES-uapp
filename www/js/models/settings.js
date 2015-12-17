@@ -4,12 +4,9 @@ application.factory('Settings', [
         'use strict';
 
         var Settings = augment(Model, function(parent) {
-            /**
-             * Settings Constructor
-             * @param  {row} resulted row from select statement
-             */
+            
             this.constructor = function(row) {
-                this._fields = ["provider_timeout", "server_rate", "server_mode", "server_email", "e_number", "e_email"];
+                this._fields = ["provider_timeout", "server_rate", "server_mode", "server_email", "e_number", "e_email", "nearby_thread", "nearby_pin", "nearby_rate", "drag_thread"];
                 this._tableName = "Settings";
                 this._modelType = Settings;
                 parent.constructor.call(this, row);
@@ -33,7 +30,7 @@ application.factory('Settings', [
             });
 
             var http = new Http();
-            /*http.isLoading = false;*/
+            
             http.get({
                 url: CONFIG.SERVER.URL,
                 model: Settings,

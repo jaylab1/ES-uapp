@@ -12,13 +12,7 @@ controllers.factory('Validator', [
                 this._isPassed = true;
             },
 
-            /**
-             * check if value is empty or not
-             * @param {Callback} isValid check if condition is true or not
-             * @param  {String}  [errorMessage] error message to display
-             * @param {String} [inputId] whether to say true is erorr or false
-             * @return {Error}   error object
-             */
+            
             _validate: function(isValid, errorMessage, inputId) {
                 inputId = !inputId ? null : inputId;
 
@@ -47,39 +41,21 @@ controllers.factory('Validator', [
                 return isValidFlag;
             },
 
-            /**
-             * check if value is empty or not
-             * @param  {String}  value to check
-             * @param  {String}  [errorMessage] error message to display
-             * @param {String} [inputId] whether to say true is erorr or false
-             * @return {Error}   error object
-             */
+            
             isEmpty: function(value, errorMessage, inputId) {
                 return this._validate(function() {
                     return !value || value.length == 0;
                 }, errorMessage, inputId);
             },
 
-            /**
-             * check if value is null or not
-             * @param  {String}  value to check
-             * @param  {errorMessage}  [errorMessage] error message to display
-             * @param {String} [inputId] whether to say true is erorr or false
-             * @return {Error}   error object
-             */
+            
             isNull: function(value, errorMessage, inputId) {
                 return this._validate(function() {
                     return value == null;
                 }, errorMessage, inputId);
             },
 
-            /**
-             * check if value is not email
-             * @param  {String}  value to check
-             * @param  {String}  [errorMessage] error message to display
-             * @param {String} [inputId] whether to say true is erorr or false
-             * @return {Error}   error object
-             */
+            
             isNotEmail: function(value, errorMessage, inputId) {
                 return this._validate(function() {
                     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -87,45 +63,26 @@ controllers.factory('Validator', [
                 }, errorMessage, inputId);
             },
 
-            /**
-             * check if value is not a number
-             * @param  {String}  value to check
-             * @param  {String}  [errorMessage] error message to display
-             * @param {String} [inputId] whether to say true is erorr or false
-             * @return {Error}   error object
-             */
+            
             isNotNumber: function(value, errorMessage, inputId) {
                 return this._validate(function() {
                     return !value || isNaN(value);
                 }, errorMessage, inputId);
             },
 
-            /**
-             * check if value is in some values or not
-             * @param  {Array}  values to search in
-             * @param  {function} isMatched to search with
-             * @param  {string}  errorMessage
-             * @param  {String} inputId  the id of input element
-             * @return {String} is in or not
-             */
+            
             isIn: function(values, isMatched, errorMessage, inputId) {
                 return this._validate(function() {
                     return Util.Find(values, isMatched) != null;
                 }, errorMessage, inputId);
             },
 
-            /**
-             * Get Error
-             * @return {Error} error object
-             */
+            
             getError: function() {
                 return this._error;
             },
 
-            /**
-             * Get Block Error
-             * @return {Error} error object
-             */
+            
             getErrorBlock: function() {
             	var error = new Error();
             	console.log(this._blockMessage);

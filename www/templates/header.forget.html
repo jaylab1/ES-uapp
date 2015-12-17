@@ -6,7 +6,7 @@
             </h4>
             <div class="list a-input">
                 <label class="item item-input" id="forgot-mobile">
-                    <input type="tel" placeholder="MOBILE PHONE NUMBER" ng-model="forgot.mobile">
+                    <input type="tel" placeholder="+961xxxxxx" ng-model="forgot.mobile">
                 </label>
                 <button class="button button-block button-energized bg-yellow b black" ng-click="onSmsTapped(forgot)">
                     SEND SMS
@@ -31,4 +31,10 @@
             </div>
         </div>
     </ion-content>
+    <ion-footer-bar align-title="left" class="bar-light hide-on-keyboard-open">
+      <div class="buttons">
+        <button class="button button-clear" ui-sref="landing">CANCEL</button>
+      </div>
+      <h1 class="title"></h1>
+    </ion-footer-bar>
 </ion-view>

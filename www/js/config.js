@@ -1,26 +1,8 @@
 'use strict';
 
 var CONFIG = {
-
-	AUTHENTICATION: {
-		REDIRECT: 'www.redirect.com',
-		FACEBOOK: {
-			ID: 'id'
-		},
-		GOOGLE: {
-			ID: 'id'
-		},
-	},	
 	SERVER: {
-		URL: "https://eserviss.com/concept/user_secured_apis.php" //response.php
+		URL: "https://eserviss.com/christmas/user_secured_apis.php?token=f837f625e15edf84dff132959e79e" //christmas, sandbox
 	},
-	DATABASE: {
-		NAME: 'file.db',
-		SCHEMA: {
-			TABLES: [
-				'SQL Create for table 1',
-				'SQL Create for table 2'
-			]
-		}
-	}
+	IS_ADS_SHOWN: false
 };

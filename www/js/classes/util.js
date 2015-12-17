@@ -10,10 +10,7 @@ controllers.factory('Util', [
             }
         });
 
-        /**
-         * Alert an object
-         * @param {Object} object to alert
-         */
+        
         Util.Alert = function(object) {
             var jsonStringified = "";
             try {
@@ -25,11 +22,11 @@ controllers.factory('Util', [
             alert(jsonStringified);
         };
 
-        /**
-         * Make number at least 2 digits
-         * @param {number} number to conver
-         * @return {String} 2 digits number
-         */
+        Util.IsBrowser = function () {
+            return typeof cordova === "undefined";
+        };
+
+        
         Util.ToTwoDigits = function(number) {
             var baseTwo = number;
             if (number < 10 && number > -10) {
@@ -39,10 +36,7 @@ controllers.factory('Util', [
             return baseTwo;
         };
 
-        /**
-         * Format Milliseconds into HH:MM:SS format
-         * @param {String} string format of time
-         */
+        
         Util.FormatMilliseconds = function(milliseconds) {
             var days, hours, minutes, seconds;
             seconds = Math.floor(milliseconds / 1000);
@@ -57,11 +51,7 @@ controllers.factory('Util', [
 
         };
 
-        /**
-         * Format string
-         * @param {string} str to format
-         * @param {array} args to replace
-         */
+        
         Util.String = function(str, args) {
             var regex = new RegExp("{-?[0-9]+}", "g");
 
@@ -81,11 +71,7 @@ controllers.factory('Util', [
             });
         };
 
-        /**
-         * Find some object in a list
-         * @param {Array}  list to search in
-         * @param {function} isMatched function to search with
-         */
+        
         Util.Find = function(list, isMatched) {
 
             for (var i = 0; i < list.length; i++) {
@@ -95,22 +81,12 @@ controllers.factory('Util', [
             return null;
         };
 
-        /* @description
-         * Determines if a reference is a `String`.
-         *
-         * @param {*} value Reference to check.
-         * @returns {boolean} True if `value` is a `String`.
-         */
+        
         Util.IsString = function(value) {
             return typeof value === 'string';
         };
 
-        /**
-         * check if some object in a list
-         * @param {Array}  value to search for
-         * @param {Array}  list to search in
-         * @return {Boolean} if exists or not
-         */
+        
         Util.InArray = function(value, list) {
             if (list.indexOf(value) === -1)
                 return false;
@@ -118,11 +94,7 @@ controllers.factory('Util', [
             return true;
         };
 
-        /**
-         * push object in array
-         * @param {*}  value to push in
-         * @param {Array}  list to push in
-         */
+        
         Util.PushUnique = function(value, list, isMatched) {
             var element = Util.Find(list, isMatched);
 
@@ -133,11 +105,7 @@ controllers.factory('Util', [
             list.push(value);
         }
 
-        /**
-         * @param {*} obj
-         * @return {boolean} Returns true if `obj` is an array or array-like object (NodeList, Arguments,
-         *                   String ...)
-         */
+        
         Util.IsArrayLike = function(obj) {
             var NODE_TYPE_ELEMENT = 1;
 
@@ -155,29 +123,17 @@ controllers.factory('Util', [
                 typeof length === 'number' && length > 0 && (length - 1) in obj;
         }
 
-        /**
-         * check if param is a function
-         * @param {*} value Reference to check.
-         * @returns {boolean} True if `value` is a `Function`.
-         */
+        
         Util.IsFunction = function(value) {
             return typeof value === 'function';
         }
 
-        /**
-         * Checks if `obj` is a window object.
-         *
-         * @param {*} obj Object to check
-         * @returns {boolean} True if `obj` is a window obj.
-         */
+        
         Util.IsWindow = function(obj) {
             return obj && obj.window === obj;
         }
 
-        /**
-         * Returns a random integer between min (inclusive) and max (inclusive)
-         * Using Math.round() will give you a non-uniform distribution!
-         */
+        
         Util.RandomNumber = function(min, max) {
             if (!min) min = 0;
             if (!max) max = 1000;
@@ -185,12 +141,7 @@ controllers.factory('Util', [
         }
 
 
-        /*
-         * @param {Object|Array} obj Object to iterate over.
-         * @param {Function} iterator Iterator function.
-         * @param {Object=} context Object to become context (`this`) for the iterator function.
-         * @returns {Object|Array} Reference to `obj`.
-         */
+        
         Util.ForEach = function(obj, iterator, context) {
             var key, length;
             if (obj) {
@@ -222,12 +173,7 @@ controllers.factory('Util', [
             return obj;
         };
 
-        /**
-         * check if string ends with suffix
-         * @param {String} str    to test
-         * @param {String} suffix to search for in the string
-         * @return {Boolean} if it exist or not
-         */
+        
         Util.EndWith = function(str, suffix) {
             return str.indexOf(suffix, str.length - suffix.length) !== -1;
         }

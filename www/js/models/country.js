@@ -4,10 +4,7 @@ application.factory('Country', [
         'use strict';
 
         var Country = augment(Model, function(parent) {
-            /**
-             * Country Constructor
-             * @param  {row} resulted row from select statement
-             */
+            
             this.constructor = function(row) {
             	this._fields = ["name", "phoneCode"];
             	this._tableName = "Country";

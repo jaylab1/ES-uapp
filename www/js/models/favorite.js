@@ -4,10 +4,7 @@ application.factory('Favorite', [
         'use strict';
 
         var Favorite = augment(Model, function(parent) {
-            /**
-             * Favorite Constructor
-             * @param  {row} resulted row from select statement
-             */
+            
             this.constructor = function(row) {
                 this._fields = ["name", "res", "lat", "lng", "address", "user_id"];
                 this._tableName = "Favorite";

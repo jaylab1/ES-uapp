@@ -4,7 +4,8 @@
         <div class="list list-inset">
             <label class="item item-input">
                 <i class="icon ion-search placeholder-icon"></i>
-                <ion-google-place placeholder="Enter address" ng-model="request.dropoffAddress" country="LB" on-selected="onLocationSelected(location)" />
+                <!-- <ion-google-place placeholder="Enter address" ng-model="request.dropoffAddress" country="LB" on-selected="onLocationSelected(location)" /> -->
+                <input type="text" placeholder="Enter Address" g-places-autocomplete ng-model="data" options="{componentRestrictions: { country: 'lb' }}"/>
             </label>
         </div>
 

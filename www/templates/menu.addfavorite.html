@@ -19,7 +19,8 @@
                     <div class="row no-margin">
                         <div class="col">
                             <label class="item item-input no-padding" id="addfavorite-address">
-                                <ion-google-place placeholder="ENTER ADDRESS" ng-model="favorite.address" country="LB" on-selected="onAddressSelected(location)" class="width-full" />
+                                <!-- <ion-google-place placeholder="ENTER ADDRESS" ng-model="favorite.address" country="LB" on-selected="onAddressSelected(location)" class="width-full" /> -->
+                                <input type="text" placeholder="Enter Address" g-places-autocomplete ng-model="input.place" options="{componentRestrictions: { country: 'lb' }}"/>
                             </label>
                         </div>
                     </div>

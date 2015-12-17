@@ -61,11 +61,7 @@ controllers.factory('Http', [
             }
         });
 
-        /**
-         * Check http response
-         * @param  {string} data returned from http request
-         * @param  {JSON} config that contains model class, callbacks
-         */
+        
         Http._checkHttpResponse = function(data, config) {
             var parsedData = null;
             if (data.status === "SUCCESS") {
@@ -84,16 +80,14 @@ controllers.factory('Http', [
                     parsedData = data.result;
                 }
 
-                if (config.onSuccess) config.onSuccess.fire(parsedData);
+                if (config.onSuccess) config.onSuccess.fire(parsedData, data.status, data.result, data);
             } else {
+                
                 if (config.onFail) config.onFail.fire(new Error(data.result || "Unkown error happened while connecting to server!", true, true), data.status, data.result, data);
             }
         };
 
-        /**
-         * On http error
-         * @param  {JSON} config that contains on error callback object
-         */
+        
         Http._onHttpError = function(config) {
             var error = new Error("Check your internet connectivity", true, true);
             if (config.onError) config.onError.fire(error);
@@ -113,11 +107,19 @@ controllers.factory('Http', [
         }
 
 
-        /**
-         * Make HTTP Post Request
-         * @param {JSON} config contains url, params, model class returned, onSuccess, onFail
-         */
+        
         Http.Post = function(config) {
+
+            if (!config.params) config.params = {};
+            
+            
+
+            if (!config.headers) config.headers = {};
+            for (var i = 0; i < Http.CommonHeaders.length; i++) {
+                if (!config.headers) config.headers = {};
+                config.headers[Http.CommonHeaders[i].name] = Http.CommonHeaders[i].value;
+            }
+            config.headers['Content-Type'] = 'application/json; charset=utf-8';
 
             //console.log('params posted to ' + config.url + ' are', config.params);
             $http({
@@ -138,31 +140,33 @@ controllers.factory('Http', [
                 .success(function(data, status, response) {
                     if (config.onAnyResponse) config.onAnyResponse.fire();
                     Http._checkHttpResponse(data, config);
-                    /*Http._hideLoading();*/
+                    
                     //console.log('params recevied from ' + config.url + ' are' + data);
                 })
                 .error(function() {
                     if (config.onAnyResponse) config.onAnyResponse.fire();
                     Http._onHttpError(config);
-                    /*Http._hideLoading();*/
+                    
                 });
         };
 
-        /**
-         * Make HTTP GET Request
-         * @param {JSON} config contains url, params, model class returned, onSuccess, onFail
-         */
+        
         Http.Get = function(config) {
-            /*console.log(config.timeout);*/
+            
             //console.log('params get to ' + config.url + ' are', config.params);
             
             if (!config.params) config.params = {};
-            config.params.token = "f837f625e15edf84dff132959e79e";
+            
+
+            if (!config.headers) config.headers = {};
+            for (var i = 0; i < Http.CommonHeaders.length; i++) {
+                if (!config.headers) config.headers = {};
+                config.headers[Http.CommonHeaders[i].name] = Http.CommonHeaders[i].value;
+            }
+            config.headers['Content-Type'] = 'application/json; charset=utf-8';
             
             $http({
-                headers: {
-                    'Content-Type': 'application/json; charset=utf-8'
-                },
+                headers: config.headers,
                 url: config.url,
                 method: 'GET',
                 params: config.params,
@@ -172,24 +176,18 @@ controllers.factory('Http', [
                     //console.log('data recevied from ' + config.url + ' are' + JSON.stringify(data));
                     if (config.onAnyResponse) config.onAnyResponse.fire();
                     Http._checkHttpResponse(data, config);
-                    /*Http._hideLoading();*/
+                    
 
                 })
                 .error(function(e, s, h) {
-                    /*Util.Alert(e);
-                    Util.Alert(s);
-                    Util.Alert(h);*/
+                    
                     if (config.onAnyResponse) config.onAnyResponse.fire();
                     Http._onHttpError(config);
-                    /*Http._hideLoading();*/
+                    
                 });
         };
 
-        /**
-         * Ping server to check if its live or offline
-         * @param {Callback} onSuccess of pinging domain
-         * @param {Callback} onFail pinging the domain
-         */
+        
         Http.Ping = function(onSuccess, onFail, domain) {
             var pingUrl = CONFIG.SERVER.URL;
             Http.Get({
@@ -198,6 +196,12 @@ controllers.factory('Http', [
                 onError: onFail
             });
         }
+
+        Http.CommonHeaders = [];
+
+        Http.AddCommonHeader = function (name, value) {
+            Http.CommonHeaders.push({name: name, value: value});
+        };
 
         Http.Loading = true;
         Http.IsLoading = function(isLoading) {

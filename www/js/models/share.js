@@ -4,10 +4,7 @@ application.factory('Share', [
         'use strict';
 
         var Share = augment(Model, function(parent) {
-            /**
-             * Share Constructor
-             * @param  {row} resulted row from select statement
-             */
+            
             this.constructor = function(row) {
             	this._fields = ["image", "title", "code"];
             	this._tableName = "Share";

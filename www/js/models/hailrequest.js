@@ -8,12 +8,9 @@ application.factory('HailRequest', [
         'use strict';
 
         var HailRequest = augment(Model, function(parent) {
-            /**
-             * HailRequest Constructor
-             * @param  {row} resulted row from select statement
-             */
+            
             this.constructor = function(row) {
-                this._fields = ["ride_id", "hail", "response", "arrived", "pickup", "dropoff", "cancel", "noservice", "pickup_address", "dropoff_address", "pickup_location", "dropoff_location", "passengers", "fare", "paid", "payment_method", "trip_mode", "driver"];
+                this._fields = ["ride_id", "hail", "response", "arrived", "pickup", "dropoff", "cancel", "noservice", "pickup_address", "dropoff_address", "pickup_location", "dropoff_location", "passengers", "fare", "paid", "payment_method", "trip_mode", "driver", "driver_dropoff_address", "driver_dropoff_location"];
                 this._tableName = "HailRequest";
                 this._modelType = HailRequest;
                 parent.constructor.call(this, row);
@@ -39,6 +36,38 @@ application.factory('HailRequest', [
                 this.stage = null;
                 this.onEtaArrival = null;
                 this.etaArriaval = null;
+                this.pingActionIndex = null;
+            };
+
+            this.getDropoffLocation = function() {
+                return Geolocation.ParsePosition("30.2,31.4");
+
+                var dropoffLocation = null;
+
+
+                if (this.dropoff_location.length <= 1 || this.driver_dropoff_location.length <= 1)
+                    return null;
+
+                dropoffLocation = this.dropoff_location.length > 1 ? Geolocation.ParsePosition(this.dropoff_location) : null;
+
+                if (!dropoffLocation)
+                    dropoffLocation = this.driver_dropoff_location.length > 1 ? Geolocation.ParsePosition(this.driver_dropoff_location) : null;
+
+                return dropoffLocation;
+            };
+
+            this.getDropoffAddress = function() {
+
+                if (!this.dropoff_address || !this.driver_dropoff_address)
+                    return null;
+
+                if (this.dropoff_address.toUpperCase().search("NOT SET") !== -1)
+                    return this.dropoff_address;
+
+                if (this.driver_dropoff_address.toUpperCase().search("NOT SET") !== -1)
+                    return this.driver_dropoff_address;
+
+                return null;
             };
 
             this.estimateCost = function(onSuccess, onError) {
@@ -58,7 +87,7 @@ application.factory('HailRequest', [
                         },
                         onSuccess: new Callback(function(cost) {
                             self.totalCost = cost * self.passengers;
-                            onSuccess.fire(self.totalCost);
+                            if (onSuccess) onSuccess.fire(self.totalCost);
                         }),
                         onFail: onError,
                         onError: onError
@@ -104,16 +133,24 @@ application.factory('HailRequest', [
                         userId: user.id,
                         rideId: this.rideId
                     },
-                    onSuccess: onSuccess,
+                    onSuccess: new Callback(function(m, s, r, data) {
+                        self.totalCost = data.fee;
+                        onSuccess.fire();
+                    }),
                     onFail: new Callback(function(e, s, r, data) {
-                        self.totalCost = data.fee.fee;
+                        self.totalCost = data.fee;
                         onError.fire(e);
                     }),
                     onError: onError
                 });
             };
 
-            this.ping = function(user, onSuccess, onError) {
+            this.ping = function(user, onSuccess, onError, onFail) {
+                if (this.pingActionIndex) {
+                    this.isPingable = true;
+                    return;
+                }
+
                 var self = this;
 
                 var http = new Http();
@@ -142,19 +179,17 @@ application.factory('HailRequest', [
                         onFail: new Callback(function(e) {
                             self.isPingable = false;
                             onError.fire(e);
+
+                            if (onFail) onFail.fire(e);
                         }),
                         onError: onError
                     });
                 };
 
-                user.pingActions.push(sendPingData);
+                var pingIndex = user.pingActions.push(sendPingData);
+                this.pingActionIndex = pingIndex - 1;
 
-                /*this.pingInterval = $interval(function() {
-                    sendPingData();
-                    for (var i = 0; i < self.pingActions.length; i++) {
-                        self.pingActions[i]();
-                    }
-                }, Settings.getInstance().server_rate * 1000);*/
+                
 
             };
 
@@ -166,7 +201,6 @@ application.factory('HailRequest', [
                 http.isLoading = false;
 
                 var makeSync = function() {
-
                     if (!self.isSyncable)
                         return;
 
@@ -178,7 +212,7 @@ application.factory('HailRequest', [
                             userId: user.id
                         },
                         onSuccess: new Callback(function(sync) {
-                            /*var sync = syncArray[0];*/
+                            
                             if (!sync) return;
                             if (sync.cancel_by_driver.trim().length !== 0) {
                                 self.status = "RIDE IS CANCELED";
@@ -189,20 +223,22 @@ application.factory('HailRequest', [
                                 self.status = "RIDE IS CANCELED";
                                 self.isSyncable = false;
                                 self.stage = HailRequest.STAGE.CANCEL;
-                            }  else if (sync.dropoff.trim().length !== 0) {
+                            } else if (sync.dropoff.trim().length !== 0) {
                                 self.status = "THANKS FOR USING ESERVISS";
                                 self.isSyncable = false;
                                 self.stage = HailRequest.STAGE.DROPOFF;
+                                self.fare = sync.fare;
+                                console.log(sync, sync.fare);
                                 if (self.onDroppedoff) self.onDroppedoff.fire();
                             } else if (sync.pickup.trim().length !== 0) {
                                 self.stage = HailRequest.STAGE.PICKUP;
-                                self.status = Util.String("{0} PICKED YOU UP", [sync.mode.name.toUpperCase()]);
+                                self.status = Util.String("YOU HAVE BEEN PICKED UP", [sync.mode.name.toUpperCase()]);
                             } else if (sync.arrived.trim().length !== 0) {
                                 self.stage = HailRequest.STAGE.ARRIVED;
-                                self.status = Util.String("{0} ARRIVED", [sync.mode.name.toUpperCase()]);
+                                self.status = Util.String("YOUR RIDE HAS ARRIVED", [sync.mode.name.toUpperCase()]);
                             } else if (sync.response.trim().length !== 0) {
                                 self.stage = HailRequest.STAGE.RESPONSE;
-                                self.status = Util.String("{0} ON ITS WAY", [sync.mode.name.toUpperCase()]);
+                                self.status = Util.String("DRIVER IS COMING", [sync.mode.name.toUpperCase()]);
                             }
 
                             onSuccess.fire(sync);
@@ -212,12 +248,12 @@ application.factory('HailRequest', [
                     });
 
                     var makeEtaArrivalRequest = function() {
-                        if (user.position.lat() && user.position.lng()) {
+                        if (user.position && user.position.lat() && user.position.lng()) {
                             http.get({
                                 url: CONFIG.SERVER.URL,
                                 params: {
                                     eta_arrival: true,
-                                    car_id: self.driver.CarNumber,
+                                    car_id: self.driver.CarId,
                                     lat: user.position.lat(),
                                     "long": user.position.lng(),
                                 },
@@ -231,7 +267,9 @@ application.factory('HailRequest', [
                         }
                     };
 
-                    user.findPosition(new Callback(makeEtaArrivalRequest), new Callback(makeEtaArrivalRequest));
+                    makeEtaArrivalRequest();
+
+                    
 
 
                 };
@@ -239,9 +277,52 @@ application.factory('HailRequest', [
                 user.pingActions.push(makeSync);
             };
 
+            this.findFare = function(user, onSuccess, onError) {
+                var self = this;
+                var MAX_REQUESTS = 5;
+                var requestsCounter = 0;
+ 
+                var findFareRequest = function() {
+                    requestsCounter++;
+                    var http = new Http();
+                    http.isLoading = false;
+                    http.get({
+                        url: CONFIG.SERVER.URL,
+                        model: SyncTrip,
+                        params: {
+                            sync: true,
+                            userId: user.id
+                        },
+                        onSuccess: new Callback(function(sync) {
+                            if (sync.fare.trim().length === 0 && requestsCounter < MAX_REQUESTS) {
+                                $timeout(findFareRequest, 1000);
+                                return;
+                            } else if (requestsCounter >= MAX_REQUESTS) {
+                                onError.fire(new Error("Can't get fare now"));
+                                return;
+                            }
+
+                            self.fare = parseFloat(sync.fare);
+                            onSuccess.fire();
+                        }),
+                        onError: onError,
+                        onFail: onError
+                    });
+                };
+
+                $timeout(findFareRequest, 1000);
+
+
+            }
 
             this.make = function(user, onSuccess, onError) {
                 var self = this;
+
+                var isLocked = localStorage.getItem(HailRequest.HAIL_LOCK);
+                if (isLocked) {
+                    onError.fire(new Error("Please close eserviss and reopen it again."));
+                    return;
+                }
 
                 var requestDriverTimeout = function(settings) {
                     var http = new Http();
@@ -303,16 +384,16 @@ application.factory('HailRequest', [
                         },
                         onSuccess: new Callback(function() {
                             self.isPingable = true;
-                            self.ping(user, onSuccess, onError);
+                            self.ping(user, onSuccess, onError, new Callback(function() {
+                                localStorage.removeItem(HailRequest.HAIL_LOCK);
+                            }));
 
                             // initDriverTimeout();
                         }),
                         onFail: null
-                        /*new Callback(function(e) {
-                            onError.fire(new Error("There is no cars available at the current time!", true, true));
-                        })*/
-                        ,
-                        onError: null /*onError*/
+                            
+                            ,
+                        onError: null 
                     });
                 };
 
@@ -335,9 +416,9 @@ application.factory('HailRequest', [
                             comment: self.comment
                         },
                         onSuccess: new Callback(function(rideId) {
-                            /*self.isPingable = true;
-                            self.ping(user, onSuccess, onError);*/
+                            
                             self.rideId = rideId;
+                            localStorage.setItem(HailRequest.HAIL_LOCK, rideId);
                             find();
                         }),
                         onFail: onError,
@@ -411,10 +492,7 @@ application.factory('HailRequest', [
                         pickupLng: this.pickupLocation.lng()
                     },
                     onSuccess: new Callback(function(r) {
-                        /*if (r.safe === null) {
-                            onSuccess.fire(true);
-                            return;
-                        }*/
+                        
 
 
                         self.nearestPoint.location = Geolocation.ParsePosition(r.location);
@@ -437,7 +515,7 @@ application.factory('HailRequest', [
                 var MIN_DISTANCE = 10;
                 var NEAR_DISTANCE = 100;
 
-                /*var counter = 0;*/
+                
 
                 this.nearestPointWatch = new Geolocation();
                 this.nearestPointWatch.watch(new Callback(function(position) {
@@ -462,20 +540,17 @@ application.factory('HailRequest', [
                         onMinDistance.fire();
                     }
 
-                    /*counter++;
-                    console.log(counter, self.nearestPoint.location.lat(), self.nearestPoint.location.lng(), distance);
-                    if (counter > 2)
-                        self.nearestPoint.location = position;*/
+                    
 
 
                 }), onError);
             };
 
             this.inService = function(onSuccess, onError) {
-                /*onSuccess.fire(true);
-                return;*/
+                var self = this;
+                
                 var http = new Http();
-                /*http.isLoading = false;*/
+                
                 http.get({
                     url: CONFIG.SERVER.URL,
                     params: {
@@ -483,7 +558,10 @@ application.factory('HailRequest', [
                         trip_type: this.mode.id
                     },
                     onSuccess: onSuccess,
-                    onFail: onError,
+                    onFail: new Callback(function(e) {
+                        if (self.mode.noservice && self.mode.noservice.length > 0) onError.fire(new Error(self.mode.noservice));
+                        else onError.fire(e);
+                    }),
                     onError: onError
                 });
             };
@@ -491,31 +569,27 @@ application.factory('HailRequest', [
 
         });
 
-        /*Object.defineProperty(HailRequest.prototype, 'dropoffLocation', {
-            set: function(val) {
-                this._dropoffLocation = val;
-                if (this.mode && this.mode.id === Mode.ID.TAXI) {
-                    this._dropoffLocation = val;
-                    return
-                }
+        
 
-                var MAX_DISTANCE = 10 * 1000;
+        HailRequest.EstimateCost = function(modeId, pickupLocation, dropoffLocation, onSuccess, onError) {
+            var http = new Http();
+            http.get({
+                url: CONFIG.SERVER.URL,
+                params: {
+                    fare: true,
+                    pickupLat: pickupLocation.lat(),
+                    pickupLng: pickupLocation.lng(),
+                    dropoffLat: dropoffLocation ? dropoffLocation.lat() : null,
+                    dropoffLng: dropoffLocation ? dropoffLocation.lng() : null,
+                    modeId: modeId
+                },
+                onSuccess: onSuccess,
+                onFail: onError,
+                onError: onError
+            });
+        };
 
-                if (this.pickupLocation && val) {
-                    var distance = google.maps.geometry.spherical.computeDistanceBetween(this.pickupLocation, val);
-                    if (distance > MAX_DISTANCE || isNaN(distance)) {
-                        this.dropoffAddress = null;
-                        this._dropoffLocation = null;
-                    } else {
-                        this._dropoffLocation = val;
-                    }
-                }
-            },
-            get: function() {
-                return this._dropoffLocation;
-            }
-        });*/
-
+        HailRequest.HAIL_LOCK = "ESERVISS.HAIL_LOCK";
         HailRequest.STAGE = {
             HAIL: "HAIL",
             RESPONSE: "RESPONSE",

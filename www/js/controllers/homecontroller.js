@@ -1,29 +1,29 @@
 controllers.controller('HomeController@splash', [
     '$scope', '$state', '$stateParams', '$ionicHistory', '$ionicPlatform', '$cordovaDialogs',
     '$rootScope', 'Callback', 'Geolocation', '$ionicModal', '$timeout', 'Settings', '$ionicLoading',
+    'User', 'Util', 'Mode', '$cordovaFacebook',
     function($scope, $state, $stateParams, $ionicHistory, $ionicPlatform, $cordovaDialogs,
-        $rootScope, Callback, Geolocation, $ionicModal, $timeout, Settings, $ionicLoading) {
-        'use strict';
-
-    }
-]);
-
-controllers.controller('HomeController@landing', [
-    '$scope', '$state', '$stateParams', '$translate', '$ionicPlatform', '$cordovaDialogs',
-    '$rootScope', 'Callback', 'Geolocation', '$ionicModal', '$timeout', 'Settings', '$ionicLoading',
-    'User', '$ionicHistory', 'Mode',
-    function($scope, $state, $stateParams, $translate, $ionicPlatform, $cordovaDialogs,
         $rootScope, Callback, Geolocation, $ionicModal, $timeout, Settings, $ionicLoading,
-        User, $ionicHistory, Mode) {
+        User, Util, Mode, $cordovaFacebook) {
         'use strict';
-        
+
+        $ionicHistory.nextViewOptions({
+            disableBack: true
+        });
+
+        $ionicPlatform.ready(function() {
+            if (!Util.IsBrowser()) {
+                $cordovaFacebook.getLoginStatus();
+                GappTrack.track("UA-69276680-1", "", "1", false, function() {}, function(message) {});
+            }
+        });
 
         $rootScope.onError = new Callback(function(e, onTapped) {
             var message = e && e.message ? e.message : "Check your internet connectivity";
 
             $cordovaDialogs.alert(message, 'Note')
-                .then(function () {
-                    if (onTapped) onTapped.fire();
+                .then(function() {
+                    if (onTapped && typeof(onTapped) !== "string") onTapped.fire();
                     $ionicLoading.hide();
                 });
         });
@@ -41,8 +41,11 @@ controllers.controller('HomeController@landing', [
         $rootScope.ifLocationEnabled = function(onEnabled, onNotEnabled) {
             var locationoffModal = null;
 
-            /*onEnabled.fire();
-            return;*/
+            if (Util.IsBrowser()) {
+                onEnabled.fire();
+                return;
+            }
+
 
             var g = new Geolocation();
             g.isLocationEnabled(new Callback(function(isEnabled) {
@@ -109,8 +112,6 @@ controllers.controller('HomeController@landing', [
             }
         });
 
-        /*$state.go("menu.requestconfirmed");
-        return;*/
 
         Settings.Download(new Callback(function() {
             $rootScope.onContactUs = function() {
@@ -128,31 +129,57 @@ controllers.controller('HomeController@landing', [
 
         if (User.IsStored()) {
 
-            $ionicHistory.nextViewOptions({
-                disableBack: true
+            var onError = new Callback(function(e) {
+                $rootScope.onError.fire(e);
+                $timeout(function() {
+                    $state.go('landing');
+                }, 4000);
             });
-
             Mode.FindAll(new Callback(function() {
                 User.getInstance().signin(new Callback(function() {
                     User.getInstance().store();
                     User.InitPushNotification();
                     User.getInstance().ping();
                     User.getInstance().sync(new Callback(function(request) { //on progress
-                        $state.go('menu.hailrequest', {
-                            request: request
-                        });
+                        $timeout(function() {
+                            $state.go('menu.hailrequest', {
+                                request: request
+                            });
+                        }, 4000);
                     }), new Callback(function(request) { // on confirmed
-                        $state.go('menu.requestconfirmed', {
-                            request: request
-                        });
+                        $timeout(function() {
+                            $state.go('menu.requestconfirmed', {
+                                request: request
+                            });
+                        }, 4000);
                     }), new Callback(function() { //no old synced data
-                        $state.go('menu.hailrequest');
-                    }), $rootScope.onError);
+                        $timeout(function() {
+                            $state.go('menu.hailrequest');
+                        }, 4000);
+                    }), onError);
 
-                }), null, $rootScope.onError);
-            }), $rootScope.onError);
+                }), null, onError);
+            }), onError);
 
+        } else {
+            $timeout(function() {
+                $state.go("landing");
+            }, 7000);
         }
+
+    }
+]);
+
+controllers.controller('HomeController@landing', [
+    '$scope', '$state', '$stateParams', '$translate', '$ionicPlatform', '$cordovaDialogs',
+    '$rootScope', 'Callback', 'Geolocation', '$ionicModal', '$timeout', 'Settings', '$ionicLoading',
+    'User', '$ionicHistory', 'Mode', '$cordovaFacebook', 'Util',
+    function($scope, $state, $stateParams, $translate, $ionicPlatform, $cordovaDialogs,
+        $rootScope, Callback, Geolocation, $ionicModal, $timeout, Settings, $ionicLoading,
+        User, $ionicHistory, Mode, $cordovaFacebook, Util) {
+        'use strict';
+
+
 
         var languageConfig = {
             title: "Select a Language",
@@ -200,16 +227,8 @@ controllers.controller('HomeController@sidemenu', [
         Settings, $rootScope, Error) {
         'use strict';
 
-        /*console.log($ionicViewSwitcher);
-        $ionicViewSwitcher.nextTransition('none');*/
         $scope.menuWidth = window.innerWidth;
 
-        /*$scope.goTo = function(stateName) {
-            $ionicHistory.nextViewOptions({
-                disableAnimate: true
-            });
-            $state.go(stateName);
-        };*/
 
         $scope.onBackTapped = function() {
             if ($ionicHistory.backView().stateName === "menu.hailrequest") {
@@ -220,16 +239,5 @@ controllers.controller('HomeController@sidemenu', [
             }
         };
 
-        /*$scope.onCustomerSupportTapped = function() {
-            $cordovaDialogs.confirm("Need Help? Don't hesitate to call us now", 'Customer Support', ['Call', 'Cancel'])
-                .then(function(buttonIndex) {
-                    var btnIndex = buttonIndex;
-                    if (btnIndex === 1) {
-                        plugins.CallNumber.callNumber(function() {}, function(e) {
-                            $rootScope.onError.fire(new Error("Error while contacting customer support, try again later", true, true));
-                        }, Settings.getInstance().e_number);
-                    }
-                });
-        };*/
     }
 ]);

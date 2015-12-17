@@ -4,10 +4,7 @@ application.factory('SyncTrip', [
         'use strict';
 
         var SyncTrip = augment(Model, function(parent) {
-            /**
-             * SyncTrip Constructor
-             * @param  {row} resulted row from select statement
-             */
+            
             this.constructor = function(row) {
                 this._fields = ["user_id", "car_id", "ride_id", "driver_id", "hail", "response", "arrived", "pickup", "dropoff", "cancel", "noservice", "pickup_address", "dropoff_address", "pickup_location", "dropoff_location", "passengers", "fare", "paid", "payment_method", "trip_mode", "cancel_by_driver"];
                 this._tableName = "SyncTrip";
